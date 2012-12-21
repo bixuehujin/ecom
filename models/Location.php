@@ -11,6 +11,9 @@ class Location extends CActiveRecord {
 		return 'location';
 	}
 	
+	/**
+	 * @return Location
+	 */
 	public static function model($className = __CLASS__) {
 		return parent::model($className);
 	}
@@ -95,4 +98,34 @@ class Location extends CActiveRecord {
 			return 0;
 		}
 	}
+	
+	/**
+	 * fetch location names from numerical id.
+	 * 
+	 * @param string $id
+	 * @return array
+	 */
+	public function locationNames($id) {
+		$ret = $ids = array();
+		$provinceId = substr($id, 0, 2);
+		if (strlen($provinceId) == 2) {
+			$ids[] = $provinceId;
+		}
+		$cityId = substr($id, 0, 4);
+		if(strlen($cityId) == 4) {
+			$ids[] = $cityId;
+		}
+		if(strlen($id) == 6) {
+			$ids[] = $id;
+		}
+		if (empty($ids)) return $ret;
+		$criteria = new CDbCriteria();
+		$criteria->addInCondition('id', $ids);
+		$results = $this->findAll($criteria);
+		
+		if (!$results) return $ret;
+		$results = Utils::sortByValues($results, $ids, 'id');
+		$names =  Utils::arrayColumns($results, 'name', 'id');
+		return $names;
+	} 
 }
