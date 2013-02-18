@@ -1,27 +1,21 @@
 <?php
 /**
- * SystemSettings class file.
+ * Settings class file.
  * 
  * @author Jin Hu <bixuehujin@gmail.com>
  */
-require_once __DIR__ . '/../models/System.php';
+require_once __DIR__ . '/../models/Setting.php';
 
 /**
- * SystemSettings Component provide key-value storage to save system settings.
- * 
- * @deprecated use Settings instead.
+ * Settings Component provide key-value storage to save settings.
  */
-class SystemSettings extends CComponent {
+class Settings extends CComponent {
 	
-	public $tableName;
+	public $dbName;
 	private $settings = array();
 	
 	public function init() {
-		if (isset($this->tableName)) {
-			System::setTableName($this->tableName);
-		}
-		
-		$model = System::model();
+		$model = Setting::model();
 		$settings = $model->findAll();
 		foreach ($settings as $setting) {
 			$this->settings[$setting->name] = $setting->value;
@@ -58,7 +52,7 @@ class SystemSettings extends CComponent {
 			return true;
 		}
 		
-		$model = System::model();
+		$model = Setting::model();
 		$model->name = $key;
 		$model->value = $value;
 		if (!array_key_exists($key, $this->settings)) {
