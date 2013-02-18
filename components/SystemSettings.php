@@ -11,10 +11,14 @@ require_once __DIR__ . '/../models/System.php';
  */
 class SystemSettings extends CComponent {
 	
-	public $dbName;
+	public $tableName;
 	private $settings = array();
 	
 	public function init() {
+		if (isset($this->tableName)) {
+			System::setTableName($this->tableName);
+		}
+		
 		$model = System::model();
 		$settings = $model->findAll();
 		foreach ($settings as $setting) {

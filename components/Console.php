@@ -71,13 +71,21 @@ class Console extends CApplicationComponent {
 	 *
 	 * @param string $message
 	 * @param string $type
+	 * @return Console
 	 */
 	public function add($message, $type) {
 		$this->_messages[$type][] = $message;
+		return $this;
 	}
 	
+	/**
+	 * 
+	 * @param object $model
+	 * @return Console
+	 */
 	public function addModel($model) {
 		$this->_models[] = $model;
+		return $this;
 	}
 	
 	/**

@@ -15,15 +15,24 @@ class Utils {
 	 *
 	 * @param array|ArrayAccess $array
 	 * @param string $name index of the column. if null is given, the whole value will used.
-	 * @param stting $indexedWith the index used in the new array, defaults to integer
+	 * @param stting|array $indexedWith the index used in the new array, defaults to integer
 	 * @return array
 	 */
 	public static function arrayColumns($array, $name = null, $indexedWith = null) {
 		$ret = array();
+		if (empty($indexedWith)) {
+			$indexedWith = null;
+		}
 		foreach ($array as  $value) {
 			$tv = $name === null ? $value : $value[$name];
 			if (is_null($indexedWith)) {
 				$ret[] = $tv;
+			}else if (is_array($indexedWith)) {
+				$t = array();
+				foreach ($indexedWith as $kv) {
+					$t[] = $value[$kv];
+				}
+				$ret[implode('-', $t)] = $tv;
 			}else {
 				$ret[$value[$indexedWith]] = $tv;
 			}
