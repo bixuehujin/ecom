@@ -65,7 +65,6 @@ class SolariumDataProvider extends CDataProvider {
 	 */
 	protected function calculateTotalItemCount() {
 		$params = $this->getParams();
-		$params['rows'] = 0;
 		return $this->_model->count($this->getCondition(), $params);
 	}
 	
@@ -77,7 +76,9 @@ class SolariumDataProvider extends CDataProvider {
 			$pagination = $this->getPagination();
 			$pagination->setItemCount($this->calculateTotalItemCount());
 			$this->_params['start'] = $pagination->getOffset();
-			$this->_resultSet = $this->_model->findAll($this->getCondition(), $this->getParams());
+			$this->_params['rows'] = $pagination->getPageSize();
+			$params = $this->getParams();
+			$this->_resultSet = $this->_model->findAll($this->getCondition(), $params);
 		}
 		return $this->_resultSet;
 	}
