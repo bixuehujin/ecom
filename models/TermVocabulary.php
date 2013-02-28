@@ -23,4 +23,16 @@ class TermVocabulary extends CActiveRecord {
 		return $re ? $re->vid : false;
 	}
 	
+	/**
+	 * Load vocabulary by its mname.
+	 *
+	 * @param string $mname
+	 * @return TermVocabulary
+	 */
+	public static function loadByMName($mname) {
+		return self::model()->findByAttributes(array(
+				'mname' => $mname,
+		));
+	}
+	
 }

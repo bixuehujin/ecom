@@ -69,4 +69,37 @@ class TermHierarchy extends CActiveRecord {
 		}
 		return $ret;
 	}
+	
+	/**
+	 * Add a term hierarchy record.
+	 * 
+	 * @param integer $tid
+	 * @param integer $parent
+	 * @return boolean
+	 */
+	public static function add($tid, $parent) {
+		$model = self::model();
+		$model->setIsNewRecord(true);
+		$model->tid = $tid;
+		$model->parent = $parent;
+		try {
+			return $model->save(false);
+		}catch (CDbException $e) {
+			return false;
+		}
+	}
+	
+	/**
+	 * Remove a term hierarchy record.
+	 * 
+	 * @param integer $tid
+	 * @param integer $parent
+	 * @return boolean
+	 */
+	public static function remove($tid, $parent) {
+		return (bool)self::model()->deleteAllByAttributes(array(
+			'tid' => $tid,
+			'parent' => $parent,
+		));
+	}
 }

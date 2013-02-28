@@ -25,12 +25,29 @@ class Term extends CActiveRecord {
 	}
 	
 	/**
+	 * Returns the default vocabulary the current term related.
+	 * Custom Term should override this method and return a TermVocabulary object.
+	 * 
+	 * @return TermVocabulary
+	 */
+	public function vocabulary() {
+		return false;
+	}
+	
+	/**
 	 * Load all terms of a vocabulary from database.
 	 * 
 	 * @param mixed $vid
 	 * @return Term[]
 	 */
-	public function loadAll($vid) {
+	public function loadAll($vid = null) {
+		if ($vid === null) {
+			$vocabulary = $this->vocabulary();
+			if (!$vocabulary instanceof TermVocabulary) {
+				throw new CException('Using default vocabulary should override the vocabulary() method.');
+			}
+			$vid = $vocabulary->vid;
+		}
 		static $cache;
 		if (!is_numeric($vid)) {
 			$vid = TermVocabulary::model()->getIdByMName($vid);
@@ -48,7 +65,15 @@ class Term extends CActiveRecord {
 	 * @param integer|string $vid
 	 * @return array
 	 */
-	public function buildTree($vid) {
+	public function buildTree($vid = null) {
+		if ($vid === null) {
+			$vocabulary = $this->vocabulary();
+			if (!$vocabulary instanceof TermVocabulary) {
+				throw new CException('Using default vocabulary should override the vocabulary() method.');
+			}
+			$vid = $vocabulary->vid;
+		}
+		
 		if (!is_numeric($vid)) {
 			$vid = TermVocabulary::model()->getIdByMName($vid);
 		}
@@ -122,9 +147,57 @@ class Term extends CActiveRecord {
 		return isset($list[$tid]);
 	}
 	
+	/**
+	 * Add a child term for current term.
+	 * 
+	 * @param integer|Term $child
+	 * @return boolean
+	 */
+	public function addChild($child) {
+		if ($child instanceof self){
+			$child = $child->tid;
+		}
+		return TermHierarchy::add($child, $this->tid);
+	}
+	
+	/**
+	 * Remove a child term for current term.
+	 *
+	 * @param integer|Term $child
+	 * @return boolean
+	 */
+	public function removeChild($child) {
+		if ($child instanceof self) {
+			$child = $child->tid;
+		}
+		return TermHierarchy::remove($child, $this->tid);
+	}
+	
 	public function toStdClass() {
 		$ret = (object)$this->getAttributes();
 		$ret->hasChildren = false;
 		return $ret;
+	}
+	
+	/**
+	 * Attach the category to a entity.
+	 *
+	 * @param integer $entityId
+	 * @param string $entityType
+	 */
+	public function attachTo($entityId, $entityType) {
+		return (boolean)TermEntity::add($this->tid, $entityId, $entityType);
+	}
+	
+	/**
+	 * Load term by ids.
+	 * 
+	 * @param array $tids
+	 * @return Term[]
+	 */
+	public static function loadByIds($tids) {
+		$criteria = new CDbCriteria();
+		$criteria->addInCondition('tid', $tids);
+		return $terms = self::model()->findAll($criteria);
 	}
 }
