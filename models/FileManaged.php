@@ -11,7 +11,6 @@ class FileManaged extends CActiveRecord {
 	const STATUS_PERSISTENT = 1;
 	
 	private $_allowExtensions;
-	private $_fileSavePath;
 	
 	/**
 	 * @return FileManaged
@@ -52,10 +51,11 @@ class FileManaged extends CActiveRecord {
 	 * Upload a file and save to database.
 	 * 
 	 * @param string $name
+	 * @param string $domain 
 	 * @param integer $status
 	 * @return mixed
 	 */
-	public function upload($source, $status = self::STATUS_TEMPORARY) {
+	public function upload($source, $domain, $status = self::STATUS_TEMPORARY) {
 		if (!isset($_FILES['files']['name'][$source])) {
 			return false;
 		}
@@ -69,6 +69,7 @@ class FileManaged extends CActiveRecord {
 		$fileManaged->mime = $_FILES['files']['type'][$source];
 		$fileManaged->size = $_FILES['files']['size'][$source];
 		$fileManaged->status = $status;
+		$fileManaged->domain = $domain;
 		$fileManaged->uid = Yii::app()->getUser()->getId();
 		if (!$fileManaged->validate(array('name'))) {
 			return false;
@@ -80,15 +81,14 @@ class FileManaged extends CActiveRecord {
 			return true;
 		}
 		if ($fileManaged->save(false)) {
-			$path = $this->getFileSavePath();
+			$path = Yii::app()->fileManager->getPathOfDomain($domain);
 			if (!file_exists($path)) {
 				mkdir($path, 744, true);
 			}
 			if (is_writable($path) && 
 					move_uploaded_file($_FILES['files']['tmp_name'][$source], $path . '/' . $fileManaged->name)) {
 				
-				return $fileManaged->setFileSavePath($this->getFileSavePath())
-					->setAllowExtensions($this->getAllowExtensions());
+				return $fileManaged->setAllowExtensions($this->getAllowExtensions());
 			}
 			$fileManaged->delete();
 			return false;
@@ -108,13 +108,15 @@ class FileManaged extends CActiveRecord {
 	/**
 	 * Delete database record and remove file.
 	 * 
-	 * @param integer $fid
+	 * @param integer $file
 	 * @return boolean
 	 */
-	public function remove($fid) {
-		$model = $this->findByPk($fid);
+	public static function remove($file) {
+		$fid = $file instanceof self ? $file->fid : $file; 
+		$model = self::model()->findByPk($fid);
 		if ($model) {
-			if (unlink($this->getFileSavePath() . '/' . $model->name)) {
+			$path = Yii::app()->fileManager->getPathOfDomain($model->domain) . '/' . $model->name;
+			if (unlink($path)) {
 				$model->delete();
 				return true;
 			}
@@ -191,24 +193,29 @@ class FileManaged extends CActiveRecord {
 	}
 	
 	/**
-	 * Set base path to save files.
+	 * Attach file to an entity.
 	 * 
-	 * @param string $path
-	 * @return FileManaged
+	 * @param integer $entityId
+	 * @param string $entityType
+	 * @param integer $count
+	 * @return boolean
 	 */
-	public function setFileSavePath($path) {
-		if ($path[0] == '/') {
-			$this->_fileSavePath = realpath($path);
-		}else {
-			$this->_fileSavePath = realpath(Yii::app()->getBasePath() . '/../' . $path);
-		}
-		return $this;
+	public function attachTo($entityId, $entityType, $count = 1) {
+		$usage = new FileUsage();
+		$usage->entity_id = $entityId;
+		$usage->entity_type = $entityType;
+		$usage->count = $count;
+		$usage->fid = $this->fid;
+		return $usage->save(false);
 	}
 	
-	public function getFileSavePath() {
-		if (null === $this->_fileSavePath) {
-			throw new CException('Property {fileSavePath} is unset.');
-		}
-		return $this->_fileSavePath;
+	/**
+	 * Get web accessable URL of the file.
+	 * 
+	 * @return string
+	 */
+	public function getAccessURL() {
+		$url = Yii::app()->fileManager->getUrlOfDomain($this->domain);
+		return $url . '/' . $this->name;
 	}
 }
