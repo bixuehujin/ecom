@@ -8,7 +8,7 @@
 class FileManager extends CApplicationComponent {
 	
 	private $_basePath;
-	
+	private $_thumbBasePath;
 	private $_domains;
 	
 	public function setBasePath($path) {
@@ -57,4 +57,38 @@ class FileManager extends CApplicationComponent {
 		$base = Yii::app()->getBasePath() . '/../';
 		return str_replace(realpath($base), '', $path);
 	}
+	
+	/**
+	 * Set the base path of thumbnail images to save.
+	 * 
+	 * @param string $path
+	 * 
+	 */
+	public function setThumbBasePath($path) {
+		if ($path[0] == '/') {
+			$this->_thumbBasePath = realpath($path);
+		}else {
+			$this->_thumbBasePath = realpath(Yii::app()->getBasePath() . '/../' . $path);
+		}
+		return $this;
+	}
+	
+	/**
+	 * Get the thumbnail base path, defaults to iamges.
+	 * 
+	 * @return string
+	 */
+	public function getThumbBasePath() {
+		if ($this->_thumbBasePath === null) {
+			$this->_thumbBasePath = realpath(Yii::app()->getBasePath() . '/../images');
+		}
+		return $this->_thumbBasePath;
+	}
+	
+	public function getThumbBaseUrl() {
+		$path = $this->getThumbBasePath();
+		$base = Yii::app()->getBasePath() . '/../';
+		return str_replace(realpath($base), '', $path);
+	}
+	
 }

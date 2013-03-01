@@ -218,4 +218,26 @@ class FileManaged extends CActiveRecord {
 		$url = Yii::app()->fileManager->getUrlOfDomain($this->domain);
 		return $url . '/' . $this->name;
 	}
+	
+	/**
+	 * Get the saving path of the file.
+	 * 
+	 * @return string
+	 */
+	public function getFilePath() {
+		$path = Yii::app()->fileManager->getPathOfDomain($this->domain);
+		return $path . '/' . $this->name;
+	}
+	
+	/**
+	 * Load a file record file database.
+	 *
+	 * @param string $name
+	 * @return FileManaged|Image
+	 */
+	public static function loadByName($name) {
+		return static::model()->findByAttributes(array(
+				'name' => $name,
+		));
+	}
 }
