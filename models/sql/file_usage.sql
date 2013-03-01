@@ -5,5 +5,5 @@ CREATE TABLE `file_usage` (
   `entity_type` varchar(50) NOT NULL DEFAULT '',
   `entity_id` int(11) unsigned NOT NULL DEFAULT 0,
   `count` int(11) unsigned NOT NULL DEFAULT 0,
-  PRIMARY KEY `pk` (`fid`, `domain`, `id`)
+  PRIMARY KEY `pk` (`fid`, `entity_type`, `entity_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
