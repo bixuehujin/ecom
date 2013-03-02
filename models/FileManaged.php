@@ -13,10 +13,10 @@ class FileManaged extends CActiveRecord {
 	private $_allowExtensions;
 	
 	/**
-	 * @return FileManaged
+	 * @return FileManaged|Image
 	 */
-	public static function model($className = __CLASS__) {
-		return parent::model($className);
+	public static function model() {
+		return parent::model(get_called_class());
 	}
 	
 	public function tableName() {
@@ -25,7 +25,7 @@ class FileManaged extends CActiveRecord {
 	
 	public function rules() {
 		return array(
-			array('name', 'extensionValidator', 'extensions' => $this->_allowExtensions),
+			array('name', 'extensionValidator', 'extensions' => $this->getAllowExtensions()),
 		);
 	}
 	
@@ -36,15 +36,17 @@ class FileManaged extends CActiveRecord {
 	 * @param array $params
 	 */
 	public function extensionValidator($attribute, $params) {
-		$extensions = isset($params['extensions']) ? $params['extensions'] : null;
+		$extensions = isset($params['extensions']) ? $params['extensions'] : $this->getAllowExtensions();
 		if ($extensions === null) {
-			return;
+			return true;
 		}
 		$value = $this->getAttribute($attribute);
-		$valueExt = $this->resolveFileExtension($value);
+		$valueExt = pathinfo($value, PATHINFO_EXTENSION);
 		if (!in_array($valueExt, $extensions)) {
-			$this->addError($attribute, Yii::t('common', 'File cann\'t be upload, extension not allowed.'));
+			$this->addError($attribute, Yii::t('Common.main', 'The specified file {name} could not be uploaded.', array('{name}' => $this->name)));
+			return false;
 		}
+		return true;
 	}
 	
 	/**
@@ -56,6 +58,7 @@ class FileManaged extends CActiveRecord {
 	 * @return mixed
 	 */
 	public function upload($source, $domain, $status = self::STATUS_TEMPORARY) {
+		
 		if (!isset($_FILES['files']['name'][$source])) {
 			return false;
 		}
@@ -63,7 +66,8 @@ class FileManaged extends CActiveRecord {
 			return false;
 		}
 		
-		$fileManaged = new FileManaged();
+		$fileManaged = static::model();
+		$fileManaged->setIsNewRecord(true);
 		$name = $_FILES['files']['name'][$source];
 		$fileManaged->name = $name;
 		$fileManaged->mime = $_FILES['files']['type'][$source];
@@ -71,7 +75,7 @@ class FileManaged extends CActiveRecord {
 		$fileManaged->status = $status;
 		$fileManaged->domain = $domain;
 		$fileManaged->uid = Yii::app()->getUser()->getId();
-		if (!$fileManaged->validate(array('name'))) {
+		if (!$r = $fileManaged->validate(array('name'))) {
 			return false;
 		}
 		$fileManaged->name = $fileManaged->uid . '-' . time()

@@ -11,16 +11,13 @@ use PHPThumb\GD;
 /**
  * Sub class of FileManaged, provides some extra functions to work with images.
  * 
+ * 
  */
 class Image extends FileManaged {
 	/**
 	 * @var PHPThumb\GD
 	 */
 	private $_gd;
-	
-	public static function model($className = __CLASS__) {
-		return parent::model($className);
-	}
 	
 	/**
 	 * @return \PHPThumb\GD
