@@ -43,11 +43,21 @@ class SolariumDataProvider extends CDataProvider {
 	 */
 	protected function fetchData() {
 		$result = $this->fetchResultSet();
+		$hl = $result->getHighlighting();
+		
 		$items = array();
 		foreach ($result as $document) {
-			$items[] = $document;
+			$item = new stdClass();
+			foreach ($document as $field => $value) {
+				$item->$field = $value;
+			}
+			if ($hlDoc = $hl->getResult($document->iid)) {
+				foreach ($hlDoc as $field => $value) {
+					$item->{'hl_' . $field} = $value[0];
+				}
+			}
+			$items[] = $item;
 		}
-		
 		return $items;
 	}
 	
