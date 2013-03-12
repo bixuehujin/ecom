@@ -67,7 +67,8 @@ class MinifyClientScript extends ClientScript {
 	}
 	*/
 	
-	public function renderHead(&$output) {
+	
+	protected function preRenderHead() {
 		if (isset($this->scriptFiles[self::POS_HEAD])) {
 			$str = '';
 			$scripts = array();
@@ -86,7 +87,7 @@ class MinifyClientScript extends ClientScript {
 			}
 			$this->scriptFiles[self::POS_HEAD][] = $this->getCacheUrl() . '/' . $name;
 		}
-		
+			
 		$strs = array();
 		$cssFiles = array();
 		foreach ($this->cssFiles as $url => $media) {
@@ -106,6 +107,12 @@ class MinifyClientScript extends ClientScript {
 				}
 			}
 			$this->cssFiles[$this->getCacheUrl() . '/' . $name] = $media;
+		}
+	}
+	
+	public function renderHead(&$output) {
+		if (!$this->debug) {
+			$this->preRenderHead();
 		}
 		parent::renderHead($output);
 	}
