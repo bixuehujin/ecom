@@ -73,7 +73,7 @@ class MinifyClientScript extends ClientScript {
 			$str = '';
 			$scripts = array();
 			foreach ($this->scriptFiles[self::POS_HEAD] as $key => $file) {
-				if (strpos($file, 'http') !== '0') {
+				if (strpos($file, 'http') !== 0) {
 					$str .= $file . '|';
 					$scripts[] = $file;
 					unset($this->scriptFiles[self::POS_HEAD][$key]);
@@ -93,9 +93,11 @@ class MinifyClientScript extends ClientScript {
 		$strs = array();
 		$cssFiles = array();
 		foreach ($this->cssFiles as $url => $media) {
-			$str = &$strs[$media];
-			$str.= $url . '|';
-			$cssFiles[$media][] = $url;
+			if (strpos($url, 'http') !== 0) {
+				$str = &$strs[$media];
+				$str.= $url . '|';
+				$cssFiles[$media][] = $url;
+			}
 		}
 		unset($str);
 		$this->cssFiles = array();
