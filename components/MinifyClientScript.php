@@ -40,11 +40,18 @@ class MinifyClientScript extends ClientScript {
 		return str_replace(realpath($base), '', $this->getCachePath());
 	}
 	
-	protected function getPathFromUri($uri) {
-		return realpath(Yii::app()->getBasePath() . '/../') . $uri;
+	/**
+	 * @param string $uri
+	 * @return string
+	 */
+	protected function getContentFromUri($uri) {
+		$file = realpath(Yii::app()->getBasePath() . '/../') . $uri;
+		if (file_exists($file)) {
+			return file_get_contents($file);
+		}else {
+			return '';
+		}
 	}
-	
-	
 	
 	/*
 	public function registerScriptFile($url, $position = null) {
@@ -83,9 +90,11 @@ class MinifyClientScript extends ClientScript {
 			$name = md5($str) . '.js';
 			$file = $this->getCachePath() . '/' . $name;
 			if (!file_exists($file)) {
+				$content = '';
 				foreach ($scripts as $script) {
-					file_put_contents($file, file_get_contents($this->getPathFromUri($script)), FILE_APPEND);
+					$content .= $this->getContentFromUri($script);
 				}
+				file_put_contents($file, $content);
 			}
 			$this->scriptFiles[self::POS_HEAD][] = $this->getCacheUrl() . '/' . $name;
 		}
@@ -106,9 +115,11 @@ class MinifyClientScript extends ClientScript {
 			$name = md5($str) . '.css';
 			$file = $this->getCachePath() . '/' . $name;
 			if (!file_exists($file)) {
+				$content = '';
 				foreach ($cssFiles[$media] as $cssFile) {
-					file_put_contents($file, file_get_contents($this->getPathFromUri($cssFile)), FILE_APPEND);
+					$content .= $this->getContentFromUri($cssFile);
 				}
+				file_put_contents($file, $content);
 			}
 			$this->cssFiles[$this->getCacheUrl() . '/' . $name] = $media;
 		}
