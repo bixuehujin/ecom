@@ -73,9 +73,11 @@ class MinifyClientScript extends ClientScript {
 			$str = '';
 			$scripts = array();
 			foreach ($this->scriptFiles[self::POS_HEAD] as $key => $file) {
-				$str .= $file . '|';
-				$scripts[] = $file;
-				unset($this->scriptFiles[self::POS_HEAD][$key]);
+				if (strpos($file, 'http') !== '0') {
+					$str .= $file . '|';
+					$scripts[] = $file;
+					unset($this->scriptFiles[self::POS_HEAD][$key]);
+				}
 			}
 			$str = rtrim($str, '|');
 			$name = md5($str) . '.js';
