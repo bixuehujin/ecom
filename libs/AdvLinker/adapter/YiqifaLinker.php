@@ -26,7 +26,8 @@ class YiqifaLinker implements IAdvLinker {
 	}
 	
 	public function getAdvUrl($toUrl) {
-		$template = $this->feedBack == null ? $this->tempalte : str_replace('<feed_back>', $this->feedBack, $this->tempalte);
+		$feedBack = $this->feedBack ?: '';
+		$template = strtr($this->tempalte, array('<feed_back>' => $feedBack));
 		return $this->baseUrl . $template . '&t=' . $toUrl;
 	}
 }
