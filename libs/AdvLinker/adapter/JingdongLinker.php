@@ -25,7 +25,7 @@ class JingdongLinker implements IAdvLinker {
 	 */
 	public function setOptions($options = array()) {
 		if (!isset($options['unionId'])) {
-			throw new InvalidArgumentException('Undefained key "uniodId" in options.', 1, null);
+			throw new \InvalidArgumentException('Undefained key "uniodId" in options.', 1, null);
 		}else {
 			$this->options['unionId'] = $options['unionId'];
 		}
