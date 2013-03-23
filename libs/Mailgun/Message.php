@@ -158,10 +158,11 @@ class Message {
 		if (!$this->sender || !$this->recipients) {
 			return false;
 		}
-		list($formAddress, $fromName) = $this->sender;
+		list($fromAddress, $fromName) = $this->sender;
 		$ret = array();
 		
-		$ret['from'] = sprintf('%s <%s>', $fromName ?: '', $formAddress);
+		$ret['from'] = $fromName == null ? $fromAddress : sprintf('%s <%s>', $fromName ?: '', $fromAddress);
+
 		$ret['to'] = $this->buildRecipients($this->recipients);
 		if ($this->bccs) {
 			$ret['bcc'] = $this->buildRecipients($this->bccs);
@@ -183,7 +184,11 @@ class Message {
 		$ret = array();
 		foreach ($recipients as $recipient) {
 			list($address, $name) = $recipient;
-			$ret[] = sprintf('%s <%s>', $name, $address);
+			if ($name == null) {
+				$ret[] = $address;
+			}else {
+				$ret[] = sprintf('%s <%s>', $name, $address);
+			}
 		}
 		return implode(',', $ret);
 	}
