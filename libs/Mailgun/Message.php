@@ -58,7 +58,7 @@ class Message {
 	 * @param string $recipients
 	 * @return \Mailgun\Message
 	 */
-	public function addRecipient($address, $name) {
+	public function addRecipient($address, $name = null) {
 		$this->recipients[] = array($address, $name);
 		return $this;
 	}
@@ -72,7 +72,7 @@ class Message {
 	}
 	
 	
-	public function addCcRecipient($address, $name) {
+	public function addCcRecipient($address, $name = null) {
 		$this->ccs[] = array($address, $name);
 		return $this;
 	}
@@ -82,7 +82,7 @@ class Message {
 		return $this->ccs;
 	}
 	
-	public function addBccRecipient($address, $name) {
+	public function addBccRecipient($address, $name = null) {
 		$this->bccs[] = array($address, $name);
 		return $this;
 	}

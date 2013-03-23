@@ -23,7 +23,7 @@ class AttachedData extends CActiveRecord {
 	}
 	
 	public function tableName() {
-		return 'attach_data';
+		return 'attached_data';
 	}
 	
 	public function behaviors() {
@@ -51,6 +51,7 @@ class AttachedData extends CActiveRecord {
 	 * @return boolean
 	 */
 	public function attach($name, $attachTo, $key, $data, $expire = null) {
+		$this->isNewRecord = true;
 		$this->key = $key;
 		$this->data = $data;
 		$this->name = $name;
@@ -70,12 +71,13 @@ class AttachedData extends CActiveRecord {
 			'key' => $key,
 			'name' => $name,
 		));
-		if ($name) {
+		if ($result) {
 			$result->data = $data;
 			$result->expire = $expire == null ? self::EXPIRE : $expire;
 			return $result->update(array('data', 'expire'));
+		}else {
+			return $this->attach($name, $attachTo, $key, $data, $expire);
 		}
-		return $this->attach($name, $attachTo, $key, $data, $expire);
 	}
 	
 	/**
@@ -133,11 +135,15 @@ class AttachedData extends CActiveRecord {
 	 * @return AttachData
 	 */
 	public function get($name, $attachTo, $key) {
-		return $this->findByAttributes(array(
+		$result = $this->findByAttributes(array(
 			'attach_to' => $attachTo,
 			'key' => $key,
 			'name' => $name,
 		));
+		if ($result && !$result->getIsExpired()) {
+			return $result;
+		}
+		return false;
 	}
 	
 	/**

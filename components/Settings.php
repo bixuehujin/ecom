@@ -9,14 +9,18 @@ require_once __DIR__ . '/../models/Setting.php';
 /**
  * Settings Component provide key-value storage to save settings.
  */
-class Settings extends CComponent {
+class Settings extends CApplicationComponent {
 	
-	public $dbName;
+	public $tableName;
 	private $settings = array();
+	/**
+	 * @var Setting
+	 */
+	private $model;
 	
 	public function init() {
-		$model = Setting::model();
-		$settings = $model->findAll();
+		$this->model = Setting::model();
+		$settings = $this->model->findAll();
 		foreach ($settings as $setting) {
 			$this->settings[$setting->name] = $setting->value;
 		}
@@ -38,6 +42,20 @@ class Settings extends CComponent {
 		}
 	}
 	
+	/**
+	 * Get multiple keys at the same time.
+	 * 
+	 * @param array $keys
+	 * @return array Array indexed with the key
+	 */
+	public function mget(array $keys) {
+		$ret = array();
+		foreach ($keys as $key) {
+			$ret[$key] = $this->get($key);
+		}
+		return $ret;
+	}
+ 	
 	/**
 	 * 
 	 * @param string $key
