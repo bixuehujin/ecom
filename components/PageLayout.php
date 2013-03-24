@@ -20,9 +20,13 @@ class PageLayout extends CApplicationComponent {
 	
 	private $_defaultFooter;
 	
+	private $_breadcrumbs;
+	
 	private $_columnItems = array();
 	
 	private $_heroUnits = array();
+	
+	private $_controller;
 	
 	/**
 	 * Set the view the render a page header.
@@ -57,7 +61,7 @@ class PageLayout extends CApplicationComponent {
 			throw new CException('No header to render!');
 		}
 		list($view, $data) = $header;
-		Yii::app()->getController()
+		$this->getController()
 			->renderPartial($view, $data);
 	}
 	
@@ -94,7 +98,7 @@ class PageLayout extends CApplicationComponent {
 			throw new CException('No footer to render!');
 		}
 		list($view, $data) = $footer;
-		Yii::app()->getController()
+		$this->getController()
 			->renderPartial($view, $data);
 	}
 	
@@ -136,11 +140,10 @@ class PageLayout extends CApplicationComponent {
 		);
 		$items = &$this->_columnItems[$columnName];
 		if (!$items) return;
-		$controller = Yii::app()->getController();
 		foreach ($items as $item) {
 			list($view, $data) = $item;
 			echo $options['prefix'];
-			$controller->renderPartial($view, $data);
+			$this->renderInternal($view, $data);
 			echo $options['suffix'];
 		}
 	}
@@ -180,22 +183,57 @@ class PageLayout extends CApplicationComponent {
 		$prefix = isset($options['prefix']) ? $options['prefix'] : '';
 		$suffix = isset($options['suffix']) ? $options['suffix'] : '';
 		
-		$controller = Yii::app()->getController();
 		foreach ($herounits as $unit) {
 			list($view, $data) = $unit;
 			echo $prefix;
-			$controller->renderPartial($view, $data);
+			$this->renderInternal($view, $data);
 			echo $suffix;
 		}
 	}
 	
-	
-	public function setBreadcrumb() {
-		
+	/**
+	 * Set a array of links to a page breadcrumb.
+	 * 
+	 * @param array $links
+	 * @return PageLayout
+	 */
+	public function setBreadcrumbs($links) {
+		$this->_breadcrumbs = $links;
+		return $this;
 	}
 	
-	public function renderBreadcrumb() {
-		
+	/**
+	 * Check whether the page has a breadcrumb.
+	 */
+	public function hasBreadcrumbs() {
+		return isset($this->_breadcrumbs);
+	}
+	
+	/**
+	 * Render the page breadcrumb.
+	 * 
+	 * @param string $class
+	 * @param array  $properties 
+	 */
+	public function renderBreadcrumbs($class, $properties = array()) {
+		$properties['links'] = $this->_breadcrumbs;
+		$this->getController()->widget($class, $properties);
+	}
+	
+	public function getBreadcrumbs() {
+		return $this->_breadcrumbs;
+	}
+	
+	/**
+	 * Internal use only.
+	 */
+	protected function renderInternal($view, $data = array()) {
+		$controller = $this->getController();
+		if (strpos($view, '/') !== false) {
+			$controller->renderPartial($view, $data);
+		}else {
+			$controller->widget($view, $data);
+		}
 	}
 	
 	/**
@@ -222,5 +260,17 @@ class PageLayout extends CApplicationComponent {
 	public function setDefaultFooter($footer) {
 		$this->_defaultFooter = $footer;
 		return $this;
+	}
+	
+	/**
+	 * Get the current controller object.
+	 * 
+	 * @return CController
+	 */
+	protected function getController() {
+		if ($this->_controller === null) {
+			$this->_controller = Yii::app()->getController();
+		}
+		return $this->_controller;
 	}
 }
