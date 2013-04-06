@@ -1,7 +1,7 @@
 <?php
 /**
  * Utils class file.
- * 
+ *
  * @author Jin Hu <bixuehujin@gmail.com>
  */
 
@@ -9,7 +9,7 @@
  * utils helper functions.
  */
 class Utils {
-	
+
 	/**
 	 * extract column values into a new array.
 	 *
@@ -39,7 +39,7 @@ class Utils {
 		}
 		return $ret;
 	}
-	
+
 	/**
 	 * sort a array with $key in the order of $values.
 	 *
@@ -57,7 +57,7 @@ class Utils {
 		}
 		return $ret;
 	}
-	
+
 	/**
 	 * @param array $array
 	 * @param mixed $value
@@ -72,10 +72,10 @@ class Utils {
 		}
 		return false;
 	}
-	
+
 	/**
 	 * whether $str is started with $substring
-	 * 
+	 *
 	 * @param string $str
 	 * @param string $substring
 	 * @return boolean
@@ -87,7 +87,7 @@ class Utils {
 			return false;
 		}
 	}
-	
+
 	/**
 	 * whether $str is ended with $substring
 	 *
@@ -98,5 +98,18 @@ class Utils {
 	public static function endWith($str, $substring) {
 		return (boolean)preg_match("/$substring$/", $str);
 	}
-	
+
+	/**
+	 * Swapper of realpath, throw exception when file does not exist.
+	 *
+	 * @param string $path
+	 * @throws CException
+	 * @return string
+	 */
+	public static function realpath($path) {
+		if (($realPath = realpath($path)) === false) {
+			throw new CException(sprintf("File '%s' do not exist!", $path));
+		}
+		return $realPath;
+	}
 }
