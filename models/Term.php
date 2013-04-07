@@ -10,8 +10,8 @@ class Term extends CActiveRecord {
 	/**
 	 * @return Term
 	 */
-	public static function model($className = __CLASS__) {
-		return parent::model($className);
+	public static function model() {
+		return parent::model(get_called_class());
 	}
 	
 	public function tableName() {
@@ -31,23 +31,18 @@ class Term extends CActiveRecord {
 	 * @return TermVocabulary
 	 */
 	public function vocabulary() {
-		return false;
+		throw new CException('Using default vocabulary should override the vocabulary() method.');
 	}
 	
 	/**
 	 * Load all terms of a vocabulary from database.
 	 * 
-	 * @param mixed $vid
 	 * @return Term[]
 	 */
-	public function loadAll($vid = null) {
-		if ($vid === null) {
-			$vocabulary = $this->vocabulary();
-			if (!$vocabulary instanceof TermVocabulary) {
-				throw new CException('Using default vocabulary should override the vocabulary() method.');
-			}
-			$vid = $vocabulary->vid;
-		}
+	public function loadAll() {
+		$vocabulary = $this->vocabulary();
+		$vid = $vocabulary->vid;
+
 		static $cache;
 		if (!is_numeric($vid)) {
 			$vid = TermVocabulary::model()->getIdByMName($vid);
@@ -62,17 +57,11 @@ class Term extends CActiveRecord {
 	/**
 	 * Build a tree structure from a list of term.
 	 * 
-	 * @param integer|string $vid
 	 * @return array
 	 */
-	public function buildTree($vid = null) {
-		if ($vid === null) {
-			$vocabulary = $this->vocabulary();
-			if (!$vocabulary instanceof TermVocabulary) {
-				throw new CException('Using default vocabulary should override the vocabulary() method.');
-			}
-			$vid = $vocabulary->vid;
-		}
+	public function buildTree() {
+		$vocabulary = $this->vocabulary();
+		$vid = $vocabulary->vid;
 		
 		if (!is_numeric($vid)) {
 			$vid = TermVocabulary::model()->getIdByMName($vid);
@@ -140,9 +129,9 @@ class Term extends CActiveRecord {
 	 * Check if a term is exist.
 	 * 
 	 * @param integer $tid
-	 * @param integer $vid
 	 */
-	public function checkExist($tid, $vid) {
+	public function checkExist($tid) {
+		$vid = $this->vocabulary()->vid;
 		$list = $this->loadAll($vid);
 		return isset($list[$tid]);
 	}
@@ -192,12 +181,59 @@ class Term extends CActiveRecord {
 	/**
 	 * Load term by ids.
 	 * 
-	 * @param array $tids
+	 * @param array   $tids
+	 * @param boolean $indexedById
 	 * @return Term[]
 	 */
-	public static function loadByIds($tids) {
+	public static function loadByIds($tids, $indexedById = false) {
 		$criteria = new CDbCriteria();
 		$criteria->addInCondition('tid', $tids);
-		return $terms = self::model()->findAll($criteria);
+		$terms = self::model()->findAll($criteria);
+		if ($indexedById) {
+			$terms = Utils::arrayColumns($terms, null, 'tid');
+		}
+		return $terms;
+	}
+	
+	/**
+	 * Get the term path from root term to current.
+	 * 
+	 * @return Term[]
+	 */
+	public static function fetchTermPath($termId) {
+		$parents = TermHierarchy::model()->getParents($termId);
+		if (!isset($parents[$termId])) {
+			return array();
+		}
+		$parents = $parents[$termId];
+		$parents = array_reverse($parents);
+		$parents[] = $termId;
+		var_dump($parents);
+		$terms = self::loadByIds($parents, true);
+		
+		foreach ($parents as &$parent) {
+			if (isset($terms[$parent])) {
+				$parent = $terms[$parent];
+			}
+		}
+		return $parents;
+	}
+	
+	/**
+	 * Fetch all child of a term.
+	 * 
+	 * @param integer  $termId
+	 * @return Term[]
+	 */
+	public static function fetchChildren($termId) {
+		$children = TermHierarchy::fetchChildren($termId);
+		$ret = array();
+		foreach ($children as $child) {
+			$term = self::model()->findByPk($child);
+			if ($term) {
+				$ret[] = $term;
+			}
+		}
+		return $ret;
 	}
 }
