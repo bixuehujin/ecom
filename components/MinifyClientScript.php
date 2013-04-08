@@ -53,6 +53,32 @@ class MinifyClientScript extends ClientScript {
 		}
 	}
 	
+	/**
+	 * Publish(Yii::app()->assetManager->publish()) a css file and register it(Yii::app()->clientScript->registerCssFile()).
+	 * 
+	 * @param string  $file
+	 * @param string  $media
+	 * @param boolean $hashByName
+	 * @return MinifyClientScript
+	 */
+	public function pregisterCssFile($file, $media = '', $hashByName = true) {
+		$url = Yii::app()->assetManager->publish($file, $hashByName);
+		return $this->registerCssFile($url, $media);
+	}
+	
+	/**
+	 * Publish(Yii::app()->assetManager->publish()) a script file and register it(Yii::app()->clientScript->registerScriptFile()).
+	 * 
+	 * @param string  $file
+	 * @param integer $position
+	 * @param boolean $hashByName
+	 * @return MinifyClientScript
+	 */
+	public function pregisterScriptFile($file, $position = null, $hashByName = true) {
+		$url = Yii::app()->assetManager->publish($file, $hashByName);
+		return $this->registerScriptFile($url, $position);
+	}
+	
 	/*
 	public function registerScriptFile($url, $position = null) {
 		if($position===null) {
