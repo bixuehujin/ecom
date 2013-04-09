@@ -112,4 +112,19 @@ class Utils {
 		}
 		return $realPath;
 	}
+	
+	/**
+	 * Fetch a set of properties from a CMoel object.
+	 * 
+	 * @param CModel  $model
+	 * @param array   $names
+	 * @return array
+	 */
+	public static function fetchProperties($model, array $names) {
+		$properties = array();
+		foreach ($names as $name) {
+			$properties[$name] = $model->$name;
+		}
+		return $properties;
+	}
 }

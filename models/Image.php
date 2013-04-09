@@ -81,7 +81,7 @@ class Image extends FileManaged {
 	 * @param integer $height
 	 * @return string
 	 */
-	public function getThumbURL($width, $height = null) {
+	public function getThumbURL($width = null, $height = null) {
 		return Yii::app()->fileManager->getThumbBaseUrl() . '/' . $this->createThumbName($width, $height); 
 	}
 	
@@ -96,8 +96,13 @@ class Image extends FileManaged {
 		return Yii::app()->fileManager->getThumbBasePath() . '/' . $this->createThumbName($width, $height);
 	}
 	
-	protected function createThumbName($width, $height) {
-		$height = $height === null ? $width : $height;
+	protected function createThumbName($width = null, $height = null) {
+		if ($width === null) {
+			$width = '{width}';
+			$height = '{height}';
+		}else {
+			$height = $height === null ? $width : $height;
+		}
 		return pathinfo($this->name, PATHINFO_FILENAME)
 		. "_._${width}x${height}."
 		. pathinfo($this->name, PATHINFO_EXTENSION);

@@ -244,4 +244,15 @@ class FileManaged extends CActiveRecord {
 				'name' => $name,
 		));
 	}
+	
+	/**
+	 * Load a file from database by fid.
+	 * 
+	 * @param string $fid
+	 * @return FileManaged|Image
+	 */
+	public static function load($fid) {
+		return static::model()->findByPk($fid);
+	}
+	
 }
