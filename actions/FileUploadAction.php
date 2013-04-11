@@ -3,19 +3,29 @@
  * FileUploadAction class file.
  * 
  * @author Jin Hu <bixuehujin@gmail.com>
+ * @since  2012-04-09
  */
 
 /**
  * @property string  $source 
+ * @property string  $fileType
+ * @property mixed   $allowExtensions
+ * @property array   $properties
  */
 class FileUploadAction extends CAction {
 	
 	public $source = 'file';
 	/**
 	 * The type of uploaded file, file or image, detault to file.
+	 * 
 	 * @var string
 	 */
 	public $fileType = 'file';
+	/**
+	 * The extensions be allowed to upload.
+	 * 
+	 * @var array|string
+	 */
 	public $allowExtensions;
 	/**
 	 * Properties needs to send to client.

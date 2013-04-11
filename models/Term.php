@@ -208,7 +208,6 @@ class Term extends CActiveRecord {
 		$parents = $parents[$termId];
 		$parents = array_reverse($parents);
 		$parents[] = $termId;
-		var_dump($parents);
 		$terms = self::loadByIds($parents, true);
 		
 		foreach ($parents as &$parent) {
