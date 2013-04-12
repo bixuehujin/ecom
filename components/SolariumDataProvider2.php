@@ -61,4 +61,11 @@ class SolariumDataProvider2 extends CDataProvider {
 		return $this->_resultSet->getNumFound();
 	}
 	
+	public function getResultSet() {
+		if ($this->_resultSet == null) {
+			$this->fetchData();
+		}
+		return $this->_resultSet;
+	}
+	
 }

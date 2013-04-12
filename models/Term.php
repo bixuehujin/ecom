@@ -179,6 +179,23 @@ class Term extends CActiveRecord {
 	}
 	
 	/**
+	 * Get the depth level of the term.
+	 * 
+	 * @return integer The integer depth level, start from 1.
+	 * @todo Performance issues on a large number of levels.
+	 */
+	public function getDepth() {
+		$level = 1;
+		$tid = $this->tid;
+		
+		do {
+			$model = TermHierarchy::model()->findByAttributes(array('tid' => $tid));
+		}while ($model && ($tid = $model->parent) != 0 && $level ++);
+		
+		return $level;
+	}
+	
+	/**
 	 * Load term by ids.
 	 * 
 	 * @param array   $tids
@@ -188,11 +205,21 @@ class Term extends CActiveRecord {
 	public static function loadByIds($tids, $indexedById = false) {
 		$criteria = new CDbCriteria();
 		$criteria->addInCondition('tid', $tids);
-		$terms = self::model()->findAll($criteria);
+		$terms = static::model()->findAll($criteria);
 		if ($indexedById) {
 			$terms = Utils::arrayColumns($terms, null, 'tid');
 		}
 		return $terms;
+	}
+	
+	/**
+	 * Load a term for database by its tid.
+	 * 
+	 * @param integer $tid
+	 * @return Term
+	 */
+	public static function load($tid) {
+		return static::model()->findByPk($tid);
 	}
 	
 	/**
