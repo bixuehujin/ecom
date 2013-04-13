@@ -196,6 +196,29 @@ class Term extends CActiveRecord {
 	}
 	
 	/**
+	 * Get all parent of the Term.
+	 * 
+	 * @return Term[] Empty array if no parent.
+	 */
+	public function parents() {
+		$ptids = TermHierarchy::fetchParents($this->tid);
+		$ret = array();
+		if (!empty($ptids)) {
+			$ret = static::loadByIds($ptids);
+		}
+		return $ret;
+	}
+	
+	/**
+	 * Get all children of the Term.
+	 * 
+	 * @return Term[]
+	 */
+	public function children() {
+		return array();
+	}
+	
+	/**
 	 * Load term by ids.
 	 * 
 	 * @param array   $tids

@@ -114,7 +114,14 @@ class TermHierarchy extends CActiveRecord {
 		return Utils::arrayColumns($res, 'tid');
 	}
 	
+	/**
+	 * Fetch parents of a termId
+	 * 
+	 * @param integer $tid
+	 * @return array 
+	 */
 	public static function fetchParents($tid) {
-		
+		$res = self::model()->findAll('tid=' . $tid);
+		return Utils::arrayColumns($res, 'parent');
 	}
 }
