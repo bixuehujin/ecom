@@ -89,9 +89,10 @@ class FileManaged extends CActiveRecord {
 			if (!file_exists($path)) {
 				mkdir($path, 744, true);
 			}
-			if (is_writable($path) && 
-					move_uploaded_file($_FILES['files']['tmp_name'][$source], $path . '/' . $fileManaged->name)) {
-				
+			if (!is_writable($path)) {
+				throw new CException("Path '$path' unwriteable!");
+			}			
+			if (move_uploaded_file($_FILES['files']['tmp_name'][$source], $path . '/' . $fileManaged->name)) {
 				return $fileManaged->setAllowExtensions($this->getAllowExtensions());
 			}
 			$fileManaged->delete();
