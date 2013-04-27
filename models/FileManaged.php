@@ -205,6 +205,10 @@ class FileManaged extends CActiveRecord {
 	 * @return boolean
 	 */
 	public function attachTo($entityId, $entityType, $count = 1) {
+		if ($this->status == self::STATUS_TEMPORARY) {
+			$this->status = self::STATUS_PERSISTENT;
+			$this->save(false, array('status'));
+		}
 		$usage = new FileUsage();
 		$usage->entity_id = $entityId;
 		$usage->entity_type = $entityType;

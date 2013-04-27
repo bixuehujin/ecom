@@ -7,10 +7,7 @@
  */
 
 /**
- * @property string  $source 
- * @property string  $fileType
- * @property mixed   $allowExtensions
- * @property array   $properties
+ * Action used upload file.
  */
 class FileUploadAction extends CAction {
 	
@@ -33,6 +30,12 @@ class FileUploadAction extends CAction {
 	 * @var array
 	 */
 	public $properties;
+	/**
+	 * Whether save uploaded file persistent.
+	 * 
+	 * @var boolean
+	 */
+	public $savePersistent = false;
 	
 	
 	public function run() {
@@ -45,7 +48,7 @@ class FileUploadAction extends CAction {
 			$fileManaged->setAllowExtensions($this->allowExtensions);
 		}
 		
-		$file = $fileManaged->upload($this->source, 'item.avatars');
+		$file = $fileManaged->upload($this->source, 'item.avatars', $this->savePersistent ? FileManaged::STATUS_PERSISTENT : FileManaged::STATUS_TEMPORARY);
 		$ajax = new AjaxReturn();
 		if ($file) {
 			if ($this->properties) {
