@@ -200,11 +200,18 @@ class FileManaged extends CActiveRecord {
 	/**
 	 * Check whether the file is attached an external entity.
 	 * 
-	 * @param integer $entityId
-	 * @param string  $entityType
+	 * @param FileAttachable $entity
 	 * @return boolean
 	 */
-	public function isAttachedTo($entityId, $entityType) {
+	public function isAttachedTo($entity) {
+		if ($entity instanceof FileAttachable) {
+			$entityId = $entity->getEntityId();
+			$entityType = $entity->getEntityType();
+		}else {
+			$entityId = $entity;
+			$entityType = func_get_arg(1);
+		}
+		
 		$usage = FileUsage::model();
 		$criteria = new CDbCriteria();
 		$criteria->addColumnCondition(array(
@@ -218,12 +225,22 @@ class FileManaged extends CActiveRecord {
 	/**
 	 * Attach file to an entity.
 	 * 
-	 * @param integer $entityId
-	 * @param string $entityType
-	 * @param integer $count
+	 * @param FileAttchable $entity
+	 * @param integer       $count
 	 * @return boolean
 	 */
-	public function attachTo($entityId, $entityType, $count = 1) {
+	public function attachTo($entity, $count = 1) {
+		if ($entity instanceof FileAttachable) {
+			$entityId = $entity->getEntityId();
+			$entityType = $entity->getEntityType();
+		}else {//compatible with the old code
+			$args = func_get_args();
+			$entityId = $entity;
+			$entityType = $count;
+			$args = func_get_args();
+			$count = isset($args[2]) ? $args[2] : 1;
+		}
+		
 		if ($this->status == self::STATUS_TEMPORARY) {
 			$this->status = self::STATUS_PERSISTENT;
 			$this->save(false, array('status'));
@@ -233,7 +250,13 @@ class FileManaged extends CActiveRecord {
 		$usage->entity_type = $entityType;
 		$usage->count = $count;
 		$usage->fid = $this->fid;
-		return $usage->save(false);
+		if ($usage->save(false)) {
+			if ($entity instanceof FileAttachable) {
+				$entity->updateAttachedFileCounter($count);
+			}
+			return true;
+		}
+		return false;
 	}
 	
 	/**
