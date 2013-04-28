@@ -36,6 +36,12 @@ class FileUploadAction extends CAction {
 	 * @var boolean
 	 */
 	public $savePersistent = false;
+	/**
+	 * Specify where the file should be save to.
+	 * 
+	 * @var string
+	 */
+	public $domain;
 	
 	
 	public function run() {
@@ -48,7 +54,7 @@ class FileUploadAction extends CAction {
 			$fileManaged->setAllowExtensions($this->allowExtensions);
 		}
 		
-		$file = $fileManaged->upload($this->source, 'item.avatars', $this->savePersistent ? FileManaged::STATUS_PERSISTENT : FileManaged::STATUS_TEMPORARY);
+		$file = $fileManaged->upload($this->source, $this->domain ?: 'item.avatars', $this->savePersistent ? FileManaged::STATUS_PERSISTENT : FileManaged::STATUS_TEMPORARY);
 		$ajax = new AjaxReturn();
 		if ($file) {
 			if ($this->properties) {
