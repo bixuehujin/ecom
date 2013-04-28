@@ -198,6 +198,24 @@ class FileManaged extends CActiveRecord {
 	}
 	
 	/**
+	 * Check whether the file is attached an external entity.
+	 * 
+	 * @param integer $entityId
+	 * @param string  $entityType
+	 * @return boolean
+	 */
+	public function isAttachedTo($entityId, $entityType) {
+		$usage = FileUsage::model();
+		$criteria = new CDbCriteria();
+		$criteria->addColumnCondition(array(
+			'fid' => $this->fid,
+			'entity_type' => $entityType,
+			'entity_id' => $entityId,
+		));
+		return $usage->exists($criteria);
+	}
+	
+	/**
 	 * Attach file to an entity.
 	 * 
 	 * @param integer $entityId
