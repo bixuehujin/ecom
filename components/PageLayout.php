@@ -28,6 +28,29 @@ class PageLayout extends CApplicationComponent {
 	
 	private $_controller;
 	
+	private $_blocks;
+	
+	private $_state;
+	
+	/**
+	 * Set the block config for display on pages.
+	 * 
+	 * @param array $blocks
+	 */
+	public function setBlocks(array $blocks) {
+		$this->_blocks = $blocks;
+		return $this;
+	}
+	
+	/**
+	 * Get the page block config array.
+	 * 
+	 * @return array
+	 */
+	public function getBlocks() {
+		return $this->_blocks;
+	}
+	
 	/**
 	 * Set the view the render a page header.
 	 * 
@@ -222,6 +245,38 @@ class PageLayout extends CApplicationComponent {
 	
 	public function getBreadcrumbs() {
 		return $this->_breadcrumbs;
+	}
+	
+	/**
+	 * Add a user defined state data.
+	 * 
+	 * @param string $name
+	 * @param mixed  $value
+	 * @return PageLayout
+	 */
+	public function setState($name, $value) {
+		$this->_state[$name] = $value;
+		return $this;
+	}
+	
+	/**
+	 * Checking whether a state data is defined.
+	 * 
+	 * @param string $name
+	 * @return boolean
+	 */
+	public function hasState($name) {
+		return isset($this->_state[$name]);
+	}
+	
+	/**
+	 * Get the state data by its name.
+	 * 
+	 * @param string $name
+	 * @return mixed
+	 */
+	public function getState($name) {
+		return isset($this->_state[$name]) ? $this->_state[$name] : null;
 	}
 	
 	/**
