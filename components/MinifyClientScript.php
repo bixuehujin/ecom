@@ -45,8 +45,8 @@ class MinifyClientScript extends ClientScript {
 	 * @return string
 	 */
 	protected function getContentFromUri($uri) {
-		$file = realpath(Yii::app()->getBasePath() . '/../') . $uri;
-		if (file_exists($file)) {
+		$file = realpath(Yii::app()->getBasePath() . '/../' . $uri);
+		if ($file && file_exists($file)) {
 			return file_get_contents($file);
 		}else {
 			return '';
