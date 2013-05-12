@@ -17,6 +17,9 @@ class Console extends CApplicationComponent {
 	 */
 	private $_messages;
 	
+	/**
+	 * @var CModel[]
+	 */
 	private $_models = array();
 	/**
 	 * @var callable
@@ -240,7 +243,15 @@ class Console extends CApplicationComponent {
 	 * @return boolean
 	 */
 	public function getHasMessages() {
-		return !empty($this->_messages);
+		if (!empty($this->_messages)) {
+			return true;
+		}
+		foreach ($this->_models as $model) {
+			if ($model->hasErrors()) {
+				return true;
+			}
+		}
+		return false;
 	}
 	
 	/**
