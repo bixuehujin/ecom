@@ -118,7 +118,7 @@ class MinifyClientScript extends ClientScript {
 			if (!file_exists($file)) {
 				$content = '';
 				foreach ($scripts as $script) {
-					$content .= $this->getContentFromUri($script);
+					$content .= $this->getContentFromUri($script) . ";\n";
 				}
 				file_put_contents($file, $content);
 			}
