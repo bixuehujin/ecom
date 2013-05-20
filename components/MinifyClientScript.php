@@ -13,7 +13,11 @@ class MinifyClientScript extends ClientScript {
 	public $debug	= false;
 	public $mergeCss = true;
 	public $mergeJs = true;
-
+	/**
+	 * @var string
+	 */
+	public $exclude;
+	
 	private $cachePath;
 	private $cachedScripts = array();
 	
@@ -45,8 +49,8 @@ class MinifyClientScript extends ClientScript {
 	 * @return string
 	 */
 	protected function getContentFromUri($uri) {
-		$file = realpath(Yii::app()->getBasePath() . '/../') . $uri;
-		if (file_exists($file)) {
+		$file = realpath(Yii::app()->getBasePath() . '/../' . $uri);
+		if ($file && file_exists($file)) {
 			return file_get_contents($file);
 		}else {
 			return '';
@@ -100,13 +104,22 @@ class MinifyClientScript extends ClientScript {
 	}
 	*/
 	
+	protected function shouldMergeIn($filename) {
+		if (strpos($filename, 'http') === 0) {
+			return false;
+		}
+		if (!$this->exclude) return true;
+		
+		return !preg_match($this->exclude, $filename);
+	}
+	
 	
 	protected function preRenderHead() {
 		if (isset($this->scriptFiles[self::POS_HEAD])) {
 			$str = '';
 			$scripts = array();
 			foreach ($this->scriptFiles[self::POS_HEAD] as $key => $file) {
-				if (strpos($file, 'http') !== 0) {
+				if ($this->shouldMergeIn($file)) {
 					$str .= $file . '|';
 					$scripts[] = $file;
 					unset($this->scriptFiles[self::POS_HEAD][$key]);
@@ -118,24 +131,26 @@ class MinifyClientScript extends ClientScript {
 			if (!file_exists($file)) {
 				$content = '';
 				foreach ($scripts as $script) {
-					$content .= $this->getContentFromUri($script);
+					$content .= $this->getContentFromUri($script) . ";\n";
 				}
 				file_put_contents($file, $content);
 			}
 			$this->scriptFiles[self::POS_HEAD][] = $this->getCacheUrl() . '/' . $name;
 		}
-			
+
+		unset($str);
+		
 		$strs = array();
 		$cssFiles = array();
 		foreach ($this->cssFiles as $url => $media) {
-			if (strpos($url, 'http') !== 0) {
+			if ($this->shouldMergeIn($url)) {
 				$str = &$strs[$media];
 				$str.= $url . '|';
 				$cssFiles[$media][] = $url;
+				unset($this->cssFiles[$url]);
 			}
 		}
-		unset($str);
-		$this->cssFiles = array();
+
 		foreach ($strs as $media => $str) {
 			$str = rtrim($str, '|');
 			$name = md5($str) . '.css';
@@ -152,6 +167,7 @@ class MinifyClientScript extends ClientScript {
 	}
 	
 	public function renderHead(&$output) {
+		//var_dump($this->cssFiles);
 		if (!$this->debug) {
 			$this->preRenderHead();
 		}
