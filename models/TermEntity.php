@@ -64,4 +64,20 @@ class TermEntity extends CActiveRecord {
 			return false;
 		}
 	}
+	
+	/**
+	 * Remove a Term-Entity relation.
+	 * 
+	 * @param integer $tid
+	 * @param integer $entityId
+	 * @param string  $entityType
+	 * @return integer
+	 */
+	public static function remove($tid, $entityId, $entityType) {
+		return self::model()->deleteAllByAttributes(array(
+			'tid' => $tid,
+			'entity_id' => $entityId,
+			'entity_type' => $entityType
+		));
+	}
 }
