@@ -30,7 +30,7 @@ class TermEntity extends CActiveRecord {
 	 * @param Term[]
 	 */
 	public static function getAttachedTerms($entidyId, $entityType) {
-		$tids = self::model()->findByAttributes(array(
+		$tids = self::model()->findAllByAttributes(array(
 			'entity_id' => $entidyId,
 			'entity_type' => $entityType,
 		));

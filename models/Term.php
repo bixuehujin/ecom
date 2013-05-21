@@ -238,7 +238,8 @@ class Term extends CActiveRecord {
 	 * @return Term
 	 */
 	public static function create($name, $description = '', $weight = 0) {
-		$term = new Term();
+		$class = get_called_class();
+		$term = new $class();
 		$term->vid = $term->vocabulary()->vid;
 		$term->name = $name;
 		$term->description = $description;
@@ -325,5 +326,8 @@ class Term extends CActiveRecord {
 	public static function fetchProviderByEntity($entityId, $entityType) {
 		$terms = TermEntity::getAttachedTerms($entidyId, $entityType);
 		return new CArrayDataProvider($terms);
+	}
+	
+	public function getEntityProvider($entityType, $pageSize = 10) {
 	}
 }
