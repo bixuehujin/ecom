@@ -230,6 +230,21 @@ class Term extends CActiveRecord {
 	}
 	
 	/**
+	 * Get the number of entity attached the tag.
+	 * 
+	 * @param string $entityType default null for all entityTypes.
+	 * @return integer
+	 */
+	public function getNumOfAttached($entityType = null) {
+		$criteria = new CDbCriteria();
+		$criteria->addCondition('tid=' . $this->tid);
+		if ($entityType !== null) {
+			$criteria->addCondition('entity_type=' . $entityType);
+		}
+		return TermEntity::model()->count($criteria);
+	}
+	
+	/**
 	 * Create a new term using given arguments.
 	 * 
 	 * @param string  $name
@@ -290,12 +305,13 @@ class Term extends CActiveRecord {
 		$parents[] = $termId;
 		$terms = self::loadByIds($parents, true);
 		
-		foreach ($parents as &$parent) {
+		$ret = array();
+		foreach ($parents as $parent) {
 			if (isset($terms[$parent])) {
-				$parent = $terms[$parent];
+				$ret[] = $terms[$parent];
 			}
 		}
-		return $parents;
+		return $ret;
 	}
 	
 	/**
