@@ -113,17 +113,41 @@ class Utils {
 		return $realPath;
 	}
 	
+	protected static function fetchPropertiesHelper($confStr) {
+		$conf = explode(':', $confStr);
+		if (!isset($conf[1])) {
+			$conf[1] = $conf[0];
+		}
+		return $conf;
+	}
+	
 	/**
 	 * Fetch a set of properties from a CMoel object.
 	 * 
 	 * @param CModel  $model
 	 * @param array   $names
+	 *   array(
+	 *     'attributeName[:attributeAlise]',
+	 *     'attributeName[:attributeAlise]' => 'subObjectName',
+	 *     'attributeName[:attributeAlise]' => array(... sub object properties...)
+	 *   )
 	 * @return array
 	 */
 	public static function fetchProperties($model, array $names) {
 		$properties = array();
-		foreach ($names as $name) {
-			$properties[$name] = $model->$name;
+		foreach ($names as $key => $value) {
+			if (is_array($value)) {
+				list($attrName, $attrAlias) = self::fetchPropertiesHelper($key);
+				if (is_object($model->$attrName)) {
+					$properties[$attrAlias] = self::fetchProperties($model->$attrName, $value);
+				}
+			}else if (is_string($key) && is_string($value)) {
+				list($attrName, $attrAlias) = self::fetchPropertiesHelper($key);
+				$properties[$attrAlias] = is_object($model->$value) ? $model->$value->$attrName : null;
+			}else {
+				list($attrName, $attrAlias) = self::fetchPropertiesHelper($value);
+				$properties[$attrAlias] = $model->$attrName;
+			}
 		}
 		return $properties;
 	}
