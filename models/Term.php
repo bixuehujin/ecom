@@ -169,13 +169,24 @@ class Term extends CActiveRecord {
 	}
 	
 	/**
-	 * Attach the category to a entity.
+	 * Attach the term to a entity.
 	 *
 	 * @param integer $entityId
 	 * @param string $entityType
 	 */
 	public function attachTo($entityId, $entityType) {
 		return (boolean)TermEntity::add($this->tid, $entityId, $entityType);
+	}
+	
+	/**
+	 * Remove the attach from entity.
+	 * 
+	 * @param integer $entityId
+	 * @param string  $entityType
+	 * @return boolean
+	 */
+	public function unattach($entityId, $entityType) {
+		return (boolean)TermEntity::remove($this->tid, $entityId, $entityType);
 	}
 	
 	/**
@@ -216,6 +227,40 @@ class Term extends CActiveRecord {
 	 */
 	public function children() {
 		return array();
+	}
+	
+	/**
+	 * Get the number of entity attached the tag.
+	 * 
+	 * @param string $entityType default null for all entityTypes.
+	 * @return integer
+	 */
+	public function getNumOfAttached($entityType = null) {
+		$criteria = new CDbCriteria();
+		$criteria->addCondition('tid=' . $this->tid);
+		if ($entityType !== null) {
+			$criteria->addCondition('entity_type=' . $entityType);
+		}
+		return TermEntity::model()->count($criteria);
+	}
+	
+	/**
+	 * Create a new term using given arguments.
+	 * 
+	 * @param string  $name
+	 * @param string  $description
+	 * @param integer $weight
+	 * @return Term
+	 */
+	public static function create($name, $description = '', $weight = 0) {
+		$class = get_called_class();
+		$term = new $class();
+		$term->vid = $term->vocabulary()->vid;
+		$term->name = $name;
+		$term->description = $description;
+		$term->weight = $weight;
+		$term->save(false);
+		return $term;
 	}
 	
 	/**
@@ -260,12 +305,13 @@ class Term extends CActiveRecord {
 		$parents[] = $termId;
 		$terms = self::loadByIds($parents, true);
 		
-		foreach ($parents as &$parent) {
+		$ret = array();
+		foreach ($parents as $parent) {
 			if (isset($terms[$parent])) {
-				$parent = $terms[$parent];
+				$ret[] = $terms[$parent];
 			}
 		}
-		return $parents;
+		return $ret;
 	}
 	
 	/**
@@ -284,5 +330,20 @@ class Term extends CActiveRecord {
 			}
 		}
 		return $ret;
+	}
+	
+	/**
+	 * Fetch all terms attached to specified entity.
+	 * 
+	 * @param integer $entityId
+	 * @param string  $entityType
+	 * @return CArrayDataProvider
+	 */
+	public static function fetchProviderByEntity($entityId, $entityType) {
+		$terms = TermEntity::getAttachedTerms($entidyId, $entityType);
+		return new CArrayDataProvider($terms);
+	}
+	
+	public function getEntityProvider($entityType, $pageSize = 10) {
 	}
 }

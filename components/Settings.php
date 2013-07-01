@@ -28,17 +28,19 @@ class Settings extends CApplicationComponent {
 	
 	
 	/**
-	 * fetch system settings by key. 
+	 * Fetch system settings by key. 
+	 * 
 	 * @param string $key the key will be get. if NULL , all settings will return.
+	 * @param mixed  $default
 	 * @return mixed
 	 */
-	public function get($key = NULL) {
+	public function get($key = null, $default = null) {
 		if($key == NULL) 
 			return $this->settings;
 		if (isset($this->settings[$key])) {
 			return $this->settings[$key];
 		}else {
-			return NULL;
+			return $default;
 		}
 	}
 	
