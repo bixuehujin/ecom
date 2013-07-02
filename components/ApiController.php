@@ -24,6 +24,7 @@ class ApiController extends CController {
 	 *         array('configure array for buildin validator'),
 	 *       ),
 	 *       'allowMethod' => array('GET', 'POST'),
+	 *       'allowRole' => 'all',//all, registered user, 
 	 *     ),
 	 *     ...
 	 *   )

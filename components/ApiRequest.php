@@ -28,6 +28,7 @@ class ApiRequest extends CModel {
 	private $_message;
 	
 	private $_allowMethod = array('GET');
+	private $_allowRole = 'all';
 	
 	/**
 	 * Set the validation rules.
@@ -36,8 +37,12 @@ class ApiRequest extends CModel {
 	 */
 	public function setConfigure($configure) {
 		$this->_rules = $configure['rules'];
-		isset($configure['allowMethod']) && $this->setAllowMethod($configure['allowMethod']);
-		return $this;
+		if (isset($configure['allowMethod'])) {
+			$this->setAllowMethod($configure['allowMethod']);
+		}
+		if (isset($configure['allowRole'])) {
+			$this->_allowRole = $configure['allowRole'];
+		}
 	}
 	
 	/**
@@ -150,6 +155,19 @@ class ApiRequest extends CModel {
 			$this->_message = Yii::t('yii', 'The request method {method} is invalid, only allow {allowMethod}.', 
 				array('{method}' => $requestType, '{allowMethod}' => implode(', ', $this->_allowMethod)));
 			return false;
+		}
+		if ($this->_allowRole === 'registered user') {
+			if (Yii::app()->user->getIsGuest()) {
+				$this->_code = 40101;
+				$this->_message = 'Authentication failed: user not logged in.';
+				return false;
+			}
+		} else if ($this->_allowRole !== 'all') {
+			if (!Yii::app()->user->checkAccess($this->_allowRole)) {
+				$this->_code = 40301;
+				$this->_message = 'Permission denied: required role' . $this->_allowRole;
+				return false;
+			}
 		}
 		return parent::beforeValidate();
 	}
