@@ -12,8 +12,8 @@ use Guzzle\Plugin\Cookie\CookiePlugin;
 use Guzzle\Plugin\Cookie\CookieJar\ArrayCookieJar;
 use Guzzle\Plugin\Cookie\CookieJar\FileCookieJar;
 
-Yii::setPathOfAlias('Guzzle', __DIR__ . '/../vendors/guzzle/src/Guzzle');
-Yii::setPathOfAlias('Symfony', __DIR__ . '/../vendors/event-dispatcher/Symfony');
+Yii::setPathOfAlias('Guzzle', __DIR__ . '/../vendors/guzzle/guzzle/src/Guzzle');
+Yii::setPathOfAlias('Symfony', __DIR__ . '/../vendors/symfony/event-dispatcher/Symfony');
 
 class ApiTestCase extends CDbTestCase {
 	

@@ -1,0 +1,22 @@
+{
+    "name": "bixuehujin/yii-common",
+    "type": "library",
+    "description": "Common components used in yii framework",
+    "keywords": ["yii", "component", "extention"],
+    "homepage": "https://github.com/bixuehujin/yii-common",
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "Jin Hu",
+            "email": "bixuehujin@gmail.com",
+            "homepage": "https://github.com/bixuehujin"
+        }
+    ],
+    "require": {
+        "guzzle/guzzle": ">=3.5",
+        "symfony/event-dispatcher": ">=2.2"
+    },
+    "config": {
+        "vendor-dir": "vendors"
+    }
+}
