@@ -28,19 +28,30 @@ class ApiController extends CController {
 	 *     ),
 	 *     ...
 	 *   )
+	 * @deprecated use ApiController::validateActionId() instead.
 	 */
 	public function requests() {
 		return array();
 	}
 	
 	protected function beforeAction($action) {
-		$requests = $this->requests();
-		if (isset($requests[$action->id])) {
-			$this->api->setConfigure($requests[$action->id]);
-			if (!$this->api->validate()) {
-				$code = $this->api->getCode();
-				$this->renderJson($this->api->getMessage(), substr($code, 0, 3), $code);
+		
+		$method = 'validate' . $action->id;
+		if (method_exists($this, $method)) {
+			$conf = $this->$method();
+		}else {
+			$confs = $this->requests();
+			if (isset($confs[$action->id])) {
+				$conf = $confs[$action->id];
 			}
+		}
+		if (isset($conf)) {
+			$this->api->setConfigure($conf);
+		}
+		
+		if (!$this->api->validate()) {
+			$code = $this->api->getCode();
+			$this->renderJson($this->api->getMessage(), substr($code, 0, 3), $code);
 		}
 		return true;
 	}

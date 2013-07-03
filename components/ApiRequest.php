@@ -36,7 +36,9 @@ class ApiRequest extends CModel {
 	 * @param array $rules
 	 */
 	public function setConfigure($configure) {
-		$this->_rules = $configure['rules'];
+		if (isset($configure['rules'])) {
+			$this->_rules = $configure['rules'];
+		}
 		if (isset($configure['allowMethod'])) {
 			$this->setAllowMethod($configure['allowMethod']);
 		}
