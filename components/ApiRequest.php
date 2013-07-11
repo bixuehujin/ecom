@@ -20,6 +20,33 @@
  */
 class ApiRequest extends CModel {
 	
+	const STATUS_OK              = 200;
+	const STATUS_INVALID_REQUEST = 400;
+	const STATUS_UNAUTHORIZED    = 401;
+	const STATUS_FAILED          = 402;
+	const STATUS_FORBIDDEN       = 403;
+	const STATUS_NOT_FOUND       = 404;
+	
+	/* 400 */
+	const CODE_BAD_REQUEST_METHOD     = 40001;
+	const CODE_BAD_REQUEST_URL        = 40002;
+	const CODE_MISSING_REQUIRED_PARAM = 40003;
+	const CODE_INVALID_PARAM_TYPE     = 40004;
+	const CODE_NO_FILE_UPLOADED       = 40005;
+	
+	/* 401 */
+	const CODE_UNAUTHORIZED_OPERATION = 40101;
+	
+	/* 402 */
+	const CODE_OPERATION_FAILED = 40201;
+	
+	/* 403 */
+	const CODE_PERMISSION_NOT_ALLOWED = 40301;
+	
+	/* 404 */
+	const CODE_OPERATION_RESOUCE_NOT_FOUND = 40401;
+	
+	
 	private $_attributeNames;
 	private $_attributes;
 	private $_rules = array();
@@ -160,13 +187,13 @@ class ApiRequest extends CModel {
 		}
 		if ($this->_allowRole === 'registered user') {
 			if (Yii::app()->user->getIsGuest()) {
-				$this->_code = 40101;
+				$this->_code = self::CODE_UNAUTHORIZED_OPERATION;
 				$this->_message = 'Authentication failed: user not logged in.';
 				return false;
 			}
 		} else if ($this->_allowRole !== 'all') {
 			if (!Yii::app()->user->checkAccess($this->_allowRole)) {
-				$this->_code = 40301;
+				$this->_code = self::CODE_PERMISSION_NOT_ALLOWED;
 				$this->_message = 'Permission denied: required role' . $this->_allowRole;
 				return false;
 			}

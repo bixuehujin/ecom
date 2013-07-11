@@ -58,13 +58,14 @@ class ApiController extends CController {
 	
 	/**
 	 * @param array|string|boolean   $data      The data to render, false indicate no data.
-	 * @param integer $status    The http status.
+	 * @param integer $code    The status code.
 	 */
-	public function renderJson($data = false, $status = 200, $subStatus = null) {
+	public function renderJson($data = false, $code = 200) {
+		$status = substr($code, 0, 3);
 		header('Content-Type: application/json', true, $status);
-		if ($subStatus != null) {
+		if ($status != 200) {
 			$data = array(
-				'code' => $subStatus,
+				'code' => $code,
 				'message' => $data,
 			);
 		}
