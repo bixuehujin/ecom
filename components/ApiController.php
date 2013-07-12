@@ -51,7 +51,7 @@ class ApiController extends CController {
 		
 		if (!$this->api->validate()) {
 			$code = $this->api->getCode();
-			$this->renderJson($this->api->getMessage(), substr($code, 0, 3), $code);
+			$this->renderJson($this->api->getMessage(), $code);
 		}
 		return true;
 	}
