@@ -10,7 +10,7 @@ class Term extends CActiveRecord {
 	/**
 	 * @return Term
 	 */
-	public static function model() {
+	public static function model($className = null) {
 		return parent::model(get_called_class());
 	}
 	
