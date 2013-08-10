@@ -23,16 +23,29 @@ class LinktechLinker implements IAdvLinker {
 		}
 		if (!isset($options['site_id'])) {
 			throw new \InvalidArgumentException('Undefined key "site_id" in options.');;
-		}		
+		}
 		$this->options = $options;
 	}
 	
 	public function getAdvUrl($toUrl) {
-		$tmpl = 'm=merchant_name&a=site_id&l=99999&l_cd1=0&l_cd2=1&u_id=feed_back&tu=to_url';
+		if (in_array($this->options['merchant_name'], array('amazon'))) {
+			$tmpl = '{to_url}?tag=lktrb-23&ascsubtag={site_id}{feed_back}';
+		}else {
+			$tmpl = '{base_url}m={merchant_name}&a={site_id}&l=99999&l_cd1=0&l_cd2=1&u_id={feed_back}&tu={to_url}';
+		}
+		return strtr($tmpl, $this->getTrMap($toUrl));
+	}
+	
+	protected function getTrMap($toUrl) {
 		$map = $this->options + array(
 			'to_url' => $toUrl,
 			'feed_back' => 0,
+			'base_url' => $this->baseUrl,
 		);
-		return $this->baseUrl . strtr($tmpl, $map);
+		$nmap = array();
+		foreach ($map as $key => $value) {
+			$nmap['{' . $key . '}'] = $value;
+		}
+		return $nmap;
 	}
 }
