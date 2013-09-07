@@ -11,21 +11,44 @@
  */
 class AjaxReturn extends CComponent {
 	
+	const SUCCESS = 0;
+	
+	/* 400 invalid request */
+	const BAD_REQUEST_METHOD     = 40001;
+	const BAD_REQUEST_URL        = 40002;
+	const PARAM_MISSING_REQUIRED = 40003;
+	const PARAM_TYPE_INVALID     = 40004;
+	const PARAM_NO_FILE_UPLOADED = 40005;
+	
+	/* 401 unauthorized */
+	const UNAUTHORIZED_OPERATION = 40101;
+	
+	/* 402 */
+	const OPERATION_FAILED = 40201;
+	
+	/* 403 */
+	const PERMISSION_NOT_ALLOWED = 40301;
+	
+	/* 404 */
+	const RESOUCE_NOT_FOUND = 40401;
+	
+	
 	protected $_internalState = array(
-		'0'=>'Success',
+		self::SUCCESS => 'Success',
 		
-		/*request arguments errors*/
-		'100'=>'Wrong Arguments Applied',
-		'101'=>'',
+		self::BAD_REQUEST_METHOD => 'Bad request method',
+		self::BAD_REQUEST_URL    => 'Bad request url',
+		self::PARAM_MISSING_REQUIRED => 'Param missing required',
+		self::PARAM_TYPE_INVALID     => 'Param type invalid',
+		self::PARAM_NO_FILE_UPLOADED => 'No file uploaded',
 		
-		/*permission errors*/
-		'200'=>'user not logged in',
-		'201'=>'have ',
+		self::UNAUTHORIZED_OPERATION => 'Unauthorized',
 		
-		/*application logic errors 3xx*/
+		self::OPERATION_FAILED       => 'Failed',
 		
-		/*other errors*/
-		'400'=>'unexpected error',
+		self::PERMISSION_NOT_ALLOWED => 'Permission not allowed',
+		
+		self::RESOUCE_NOT_FOUND      => 'Resouce not found',
 	);
 	
 	private $_code = 0;
