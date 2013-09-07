@@ -16,7 +16,9 @@
         "guzzle/guzzle": ">=3.5",
         "symfony/event-dispatcher": ">=2.2"
     },
+    "require-dev": {
+    	"yiisoft/yii": "1.1.*"
+    },
     "config": {
-        "vendor-dir": "vendors"
     }
 }
