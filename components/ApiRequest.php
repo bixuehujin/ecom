@@ -21,6 +21,7 @@
 class ApiRequest extends CModel {
 	
 	const STATUS_OK              = 200;
+	
 	const STATUS_INVALID_REQUEST = 400;
 	const STATUS_UNAUTHORIZED    = 401;
 	const STATUS_FAILED          = 402;
@@ -32,6 +33,7 @@ class ApiRequest extends CModel {
 	const CODE_BAD_REQUEST_URL        = 40002;
 	const CODE_MISSING_REQUIRED_PARAM = 40003;
 	const CODE_INVALID_PARAM_TYPE     = 40004;
+	const CODE_PARAM_TYPE_INVALID     = 40004; // alias of CODE_INVALID_PARAM_TYPE
 	const CODE_NO_FILE_UPLOADED       = 40005;
 	
 	/* 401 */
@@ -45,6 +47,7 @@ class ApiRequest extends CModel {
 	
 	/* 404 */
 	const CODE_OPERATION_RESOUCE_NOT_FOUND = 40401;
+	const CODE_RESOUCE_NOT_FOUND           = 40401; /*alias of CODE_OPERATION_RESOUCE_NOT_FOUND*/
 	
 	
 	private $_attributeNames;
