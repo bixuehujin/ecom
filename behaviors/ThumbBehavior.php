@@ -5,6 +5,9 @@
  * @author Jin Hu <bixuehujin@gmail.com>
  */
 
+/**
+ * @deprecated using ImageThumbnailAction instead.
+ */
 class ThumbBehavior extends CBehavior {
 	
 	/**
