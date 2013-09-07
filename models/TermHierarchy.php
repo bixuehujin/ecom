@@ -24,12 +24,13 @@ class TermHierarchy extends CActiveRecord {
 	 * @param mixed $tids
 	 * @return array All parents indexed with tid.
 	 */
-	public function getParents($tids) {
+	public function getParents($tids, $vid) {
 		if (!is_array($tids)) {
 			$tids = array($tids);
 		}
 		$criteria = new CDbCriteria();
 		$criteria->addInCondition('tid', $tids);
+		$criteria->addCondition('vid=' . $vid);
 		$res = $this->findAll($criteria);
 		$ret = array();
 		if ($res) {
@@ -50,12 +51,13 @@ class TermHierarchy extends CActiveRecord {
 	 * @param mixed $tids
 	 * @return array All children indexed with tid.
 	 */
-	public function getChildren($tids) {
+	public function getChildren($tids, $vid) {
 		if (!is_array($tids)) {
 			$tids = array($tids);
 		}
 		$criteria = new CDbCriteria();
 		$criteria->addInCondition('parent', $tids);
+		$criteria->addCondition('vid=' . $vid);
 		$res = $this->findAll($criteria);
 		$ret = array();
 		if ($res) {
@@ -77,11 +79,12 @@ class TermHierarchy extends CActiveRecord {
 	 * @param integer $parent
 	 * @return boolean
 	 */
-	public static function add($tid, $parent) {
+	public static function add($tid, $parent, $vid) {
 		$model = self::model();
 		$model->setIsNewRecord(true);
 		$model->tid = $tid;
 		$model->parent = $parent;
+		$model->vid = $vid;
 		try {
 			return $model->save(false);
 		}catch (CDbException $e) {
@@ -96,10 +99,11 @@ class TermHierarchy extends CActiveRecord {
 	 * @param integer $parent
 	 * @return boolean
 	 */
-	public static function remove($tid, $parent) {
+	public static function remove($tid, $parent, $vid) {
 		return (bool)self::model()->deleteAllByAttributes(array(
 			'tid' => $tid,
 			'parent' => $parent,
+			'vid' => $vid
 		));
 	}
 	
@@ -109,8 +113,13 @@ class TermHierarchy extends CActiveRecord {
 	 * @param integer $tid
 	 * @return array  array of tid.
 	 */
-	public static function fetchChildren($tid) {
-		$res = self::model()->findAll('parent=' . $tid);
+	public static function fetchChildren($tid, $vid) {
+		$criteria = new CDbCriteria();
+		$criteria->addColumnCondition(array(
+			'parent' => $tid,
+			'vid' => $vid
+		));
+		$res = self::model()->findAll($criteria);
 		return Utils::arrayColumns($res, 'tid');
 	}
 	
@@ -120,8 +129,32 @@ class TermHierarchy extends CActiveRecord {
 	 * @param integer $tid
 	 * @return array 
 	 */
-	public static function fetchParents($tid) {
-		$res = self::model()->findAll('tid=' . $tid);
+	public static function fetchParents($tid, $vid) {
+		$criteria = new CDbCriteria();
+		$criteria->addColumnCondition(array(
+			'tid' => $tid,
+			'vid' => $vid
+		));
+		$res = self::model()->findAll($criteria);
 		return Utils::arrayColumns($res, 'parent');
+	}
+	
+	/**
+	 * Fetch all ancestors of a term.
+     *
+	 * @param integer $tid
+	 * @param integer $vid
+	 */
+	public static function fetchAncestors($tid, $vid) {
+		$ret = array();
+		while (true) {
+			$parents = self::fetchParents($tid, $vid);
+			if (!isset($parents[0])) {
+				break;
+			}
+			$tid = $parents[0];
+			$ret[] = $tid;
+		}
+		return array_reverse($ret);
 	}
 }

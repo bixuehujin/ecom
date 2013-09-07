@@ -159,7 +159,11 @@ class Term extends CActiveRecord {
 		if ($child instanceof self) {
 			$child = $child->tid;
 		}
-		return TermHierarchy::remove($child, $this->tid);
+		if (TermHierarchy::remove($child, $this->tid)) {
+			static::model()->deleteByPk($child);
+			return true;
+		}
+		return false;
 	}
 	
 	public function toStdClass() {
@@ -223,10 +227,24 @@ class Term extends CActiveRecord {
 	/**
 	 * Get all children of the Term.
 	 * 
-	 * @return Term[]
+	 * @return Term[] terms indexed by tid
 	 */
 	public function children() {
-		return array();
+		$tids = TermHierarchy::fetchChildren($this->tid, $this->vid);
+		return self::load($tids, true);
+	}
+	
+	/**
+	 * Get the path to current term.
+	 * 
+	 * @return Term[]
+	 * @todo no consideration of multiple parents
+	 */
+	public function getPath() {
+		$parentIds = TermHierarchy::fetchAncestors($this->tid, $this->vid);
+		$path = static::load($parentIds);
+		$path[] = $this;
+		return $path;
 	}
 	
 	/**
@@ -283,11 +301,16 @@ class Term extends CActiveRecord {
 	/**
 	 * Load a term for database by its tid.
 	 * 
-	 * @param integer $tid
-	 * @return Term
+	 * @param mixed $tid tid or array of tid
+	 * @param boolean $indexedByTid
+	 * @return Term|Term[]
 	 */
-	public static function load($tid) {
-		return static::model()->findByPk($tid);
+	public static function load($tid, $indexedByTid = false) {
+		if (is_array($tid)) {
+			return static::model()->findAllByPk($tid, $indexedByTid ? array('index' => 'tid') : '');
+		}else {
+			return static::model()->findByPk($tid);
+		}
 	}
 	
 	/**
@@ -295,8 +318,8 @@ class Term extends CActiveRecord {
 	 * 
 	 * @return Term[]
 	 */
-	public static function fetchTermPath($termId) {
-		$parents = TermHierarchy::model()->getParents($termId);
+	public static function fetchTermPath($termId, $vid) {
+		$parents = TermHierarchy::model()->getParents($termId, $vid);
 		if (!isset($parents[$termId])) {
 			return array();
 		}
@@ -345,5 +368,6 @@ class Term extends CActiveRecord {
 	}
 	
 	public function getEntityProvider($entityType, $pageSize = 10) {
+		
 	}
 }
