@@ -6,7 +6,7 @@ return array(
 	// preloading 'log' component
 	'preload'=>array('log'),
 	'aliases' => array(
-		'common' => __DIR__ . '/../../'
+		'common' => __DIR__ . '/../'
 	),
 	'import'=>array(
 		'common.models.*',
@@ -24,11 +24,14 @@ return array(
 				'pictures' => 'pictures',
 			),
 		),
+		'fixture'=>array(
+			'class'=>'system.test.CDbFixtureManager',
+		),
 		'db'=>array(
-			'connectionString' => 'mysql:host=127.0.0.1;dbname=test',
+			'connectionString' => $GLOBALS['db_dsn'],
 			'emulatePrepare' => true,
-			'username' => 'test',
-			'password' => 'test',
+			'username' => $GLOBALS['db_user'],
+			'password' => $GLOBALS['db_passwd'],
 			'charset' => 'utf8',
 		),
 		'redis'=>array(
