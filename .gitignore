@@ -1,2 +1,4 @@
-/vendors/
-composer.lock
+/vendor/
+*.lock
+.*
+/runtime/
