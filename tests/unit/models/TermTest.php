@@ -25,13 +25,30 @@ class TermTest extends CDbTestCase {
 		
 		$this->assertCount(2, $children);
 		$this->assertEquals(array(3, 4), array_keys($children));
+		
+		$toplevel = Term::fetchChildren(0, 1);
+		$this->assertCount(2, $toplevel);
+		$this->assertEquals(array(1, 2), array_keys($toplevel));
 	}
 	
-	public function testGetPath() {
-		$term = Term::load(5);
-		$path = $term->getPath();
+	public function testCreate() {
+		$model = Term::model();
+		$term = $model->create(array(
+			'name' => 'test term',
+			'vid' => 1,
+		));
+		$this->assertInstanceOf('Term', $term);
+		$this->assertCount(3, Term::fetchChildren(0, 1));
 		
-		$this->assertEquals(3, count($path));
-		$this->assertEquals(array(1, 3, 5), Utils::arrayColumns($path, 'tid'));
+		$term->delete();
+		$this->assertCount(2, Term::fetchChildren(0, 1));
+		
+		$term = Term::model()->create(array(
+			'name' => 'sub term of 2',
+			'vid' => 1,
+			'parent' => 2,
+		));
+		$this->assertCount(1, Term::fetchChildren(2, 1));
+		$this->assertEquals(array($term->tid), array_keys(Term::fetchChildren(2, 1)));
 	}
 }

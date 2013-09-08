@@ -11,6 +11,11 @@ return array(
 	'import'=>array(
 		'common.models.*',
 		'common.components.*',
+		'common.tests.models.*',
+		'common.tests.controllers.*',
+	),
+	'controllerMap'=>array(
+		'tree' => 'common.tests.controllers.TreeController'
 	),
 	// application components
 	'components'=>array(
@@ -24,14 +29,19 @@ return array(
 				'pictures' => 'pictures',
 			),
 		),
+		'urlManager'=>array(
+			'urlFormat' => 'path',
+			'showScriptName'=>false,
+			'appendParams'=>false,
+		),
 		'fixture'=>array(
 			'class'=>'system.test.CDbFixtureManager',
 		),
 		'db'=>array(
-			'connectionString' => $GLOBALS['db_dsn'],
+			'connectionString' => 'mysql:dbname=yii-common;host=localhost',
 			'emulatePrepare' => true,
-			'username' => $GLOBALS['db_user'],
-			'password' => $GLOBALS['db_passwd'],
+			'username' => 'test',
+			'password' => 'test',
 			'charset' => 'utf8',
 		),
 		'redis'=>array(

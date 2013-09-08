@@ -7,6 +7,10 @@
 
 class TermHierarchy extends CActiveRecord {
 	
+	private static $cacheChildren = array(); //hierarchy cache indexed by vid
+	
+	private static $cacheParents  = array();
+	
 	/**
 	 * @return TermHierarchy
 	 */
@@ -18,59 +22,50 @@ class TermHierarchy extends CActiveRecord {
 		return 'term_hierarchy';
 	}
 
-	/**
-	 * Get all parents of all tids.
-	 * 
-	 * @param mixed $tids
-	 * @return array All parents indexed with tid.
-	 */
-	public function getParents($tids, $vid) {
-		if (!is_array($tids)) {
-			$tids = array($tids);
+	protected function preload($vid) {
+		$cacheChildren = &self::$cacheChildren[$vid];
+		$cacheParents  = &self::$cacheParents[$vid];
+		if (isset($cacheChildren)) {
+			return;
 		}
-		$criteria = new CDbCriteria();
-		$criteria->addInCondition('tid', $tids);
-		$criteria->addCondition('vid=' . $vid);
-		$res = $this->findAll($criteria);
-		$ret = array();
-		if ($res) {
-			foreach ($res as $item) {
-				if (isset($ret[$item->tid])) {
-					$ret[$item->tid][] = $item->parent;
-				}else {
-					$ret[$item->tid] = array($item->parent);
-				}
+		
+		$relations = self::model()->findAll('vid=' . $vid);
+		foreach ($relations as $relation) {
+			list($tid, $parent) = array($relation->tid, $relation->parent);
+			
+			if (!isset($cacheParents[$tid])) {
+				$cacheParents[$tid] = array($parent);
+			}else {
+				$cacheParents[$tid][] = $parent;
+			}
+			
+			if (!isset($cacheChildren[$parent])) {
+				$cacheChildren[$parent] = array($tid);
+			}else {
+				$cacheChildren[$parent][] = $tid;
 			}
 		}
-		return $ret;
 	}
 	
-	/**
-	 * Get all children of all tids.
-	 *
-	 * @param mixed $tids
-	 * @return array All children indexed with tid.
-	 */
-	public function getChildren($tids, $vid) {
-		if (!is_array($tids)) {
-			$tids = array($tids);
+	protected function addToCache($tid, $parent, $vid) {
+		$cacheChildren = &self::$cacheChildren[$vid];
+		if (!isset($cacheChildren)) {
+			return;
 		}
-		$criteria = new CDbCriteria();
-		$criteria->addInCondition('parent', $tids);
-		$criteria->addCondition('vid=' . $vid);
-		$res = $this->findAll($criteria);
-		$ret = array();
-		if ($res) {
-			foreach ($res as $item) {
-				if (isset($ret[$item->parent])) {
-					$ret[$item->parent][] = $item->tid;
-				}else {
-					$ret[$item->parent] = array($item->tid);
-				}
-			}
+		if (isset($cacheChildren[$parent])) {
+			$cacheChildren[$parent][] = $tid;
+		}else {
+			$cacheChildren[$parent] = array($tid);
 		}
-		return $ret;
+		
+		$cacheParents = &self::$cacheParents[$vid];
+		if (isset($cacheParents[$tid])) {
+			$cacheParents[$tid][] = $parent;
+		}else {
+			$cacheParents[$tid] = array($parent);
+		}
 	}
+	
 	
 	/**
 	 * Add a term hierarchy record.
@@ -86,7 +81,10 @@ class TermHierarchy extends CActiveRecord {
 		$model->parent = $parent;
 		$model->vid = $vid;
 		try {
-			return $model->save(false);
+			if ($model->save(false)) {
+				$model->addToCache($tid, $parent, $vid);
+				return true;
+			}
 		}catch (CDbException $e) {
 			return false;
 		}
@@ -107,37 +105,23 @@ class TermHierarchy extends CActiveRecord {
 		));
 	}
 	
-	/**
-	 * Fetch children of a termId.
-	 * 
-	 * @param integer $tid
-	 * @return array  array of tid.
-	 */
-	public static function fetchChildren($tid, $vid) {
-		$criteria = new CDbCriteria();
-		$criteria->addColumnCondition(array(
-			'parent' => $tid,
-			'vid' => $vid
-		));
-		$res = self::model()->findAll($criteria);
-		return Utils::arrayColumns($res, 'tid');
+	public function getParents($tid, $vid) {
+		$this->preload($vid);
+		if (isset(self::$cacheParents[$vid][$tid])) {
+			return self::$cacheParents[$vid][$tid];
+		}
+		return array();
 	}
 	
-	/**
-	 * Fetch parents of a termId
-	 * 
-	 * @param integer $tid
-	 * @return array 
-	 */
-	public static function fetchParents($tid, $vid) {
-		$criteria = new CDbCriteria();
-		$criteria->addColumnCondition(array(
-			'tid' => $tid,
-			'vid' => $vid
-		));
-		$res = self::model()->findAll($criteria);
-		return Utils::arrayColumns($res, 'parent');
+	public function getChildren($parentId, $vid) {
+		$this->preload($vid);
+		if (isset(self::$cacheChildren[$vid][$parentId])) {
+			
+			return self::$cacheChildren[$vid][$parentId];
+		}
+		return array();
 	}
+	
 	
 	/**
 	 * Fetch all ancestors of a term.
@@ -148,12 +132,12 @@ class TermHierarchy extends CActiveRecord {
 	public static function fetchAncestors($tid, $vid) {
 		$ret = array();
 		while (true) {
-			$parents = self::fetchParents($tid, $vid);
-			if (!isset($parents[0])) {
+			$parents = self::fetchParents($tid, $vid, false);
+			if (empty($parents)) {
 				break;
 			}
-			$tid = $parents[0];
-			$ret[] = $tid;
+			$parent = $parents[0];
+			$ret[$parent->parent] = $parent;
 		}
 		return array_reverse($ret);
 	}

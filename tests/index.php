@@ -1,6 +1,4 @@
 <?php
-require __DIR__ . '/../vendor/autoload.php';
-
 $yiit = __DIR__ . '/../vendor/yiisoft/yii/framework/yiit.php';
 $config = __DIR__ . '/config.php';
 
@@ -9,5 +7,4 @@ defined('YII_DEBUG') or define('YII_DEBUG', true);
 
 require_once($yiit);
 
-Yii::createWebApplication($config);
-//Yii::createConsoleApplication($config);
+Yii::createWebApplication($config)->run();

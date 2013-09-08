@@ -15,4 +15,14 @@ return array(
 		'parent' => 1,
 		'vid' => 1,
 	),
+	array(
+		'tid' => 1,
+		'parent' => 0,
+		'vid' => 1,
+	),
+	array(
+		'tid' => 2,
+		'parent' => 0,
+		'vid' => 1,
+	),
 );

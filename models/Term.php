@@ -7,6 +7,10 @@
 
 class Term extends CActiveRecord {
 
+	private static $vocabularyId;
+	
+	private $_parents = null;// parent tids of current term object
+	
 	/**
 	 * @return Term
 	 */
@@ -24,6 +28,35 @@ class Term extends CActiveRecord {
 		);
 	}
 	
+	public function rules() {
+		return array(
+			array('name,vid', 'required'),
+			array('description,weight', 'safe'),
+		);
+	}
+	
+	public function setParents(array $parents) {
+		$this->_parents = $parents;
+	}
+	
+	public function getParents() {
+		if ($this->_parents === null) {
+			$parents = TermHierarchy::model()->getParents($this->tid, $this->getVocabularyId());
+			$this->_parents = array();
+			foreach ($parents as $parent) {
+				if ($parent) {
+					$this->_parents[] = $parent;
+				}
+			}
+			
+		}
+		return $this->_parents;
+	}
+	
+	public function getParent() {
+		return isset($this->_parents[0]) ? $this->_parents[0] : null;
+	}
+	
 	/**
 	 * Returns the default vocabulary the current term related.
 	 * Custom Term should override this method and return a TermVocabulary object.
@@ -32,6 +65,14 @@ class Term extends CActiveRecord {
 	 */
 	public function vocabulary() {
 		throw new CException('Using default vocabulary should override the vocabulary() method.');
+	}
+	
+	public  function getVocabularyId() {
+		if (self::$vocabularyId === null) {
+			$t = static::model()->vocabulary();
+			self::$vocabularyId = $t->vid;
+		}
+		return self::$vocabularyId;
 	}
 	
 	/**
@@ -230,21 +271,33 @@ class Term extends CActiveRecord {
 	 * @return Term[] terms indexed by tid
 	 */
 	public function children() {
-		$tids = TermHierarchy::fetchChildren($this->tid, $this->vid);
-		return self::load($tids, true);
+		return self::fetchChildren($this->tid, $this->vid);
 	}
 	
 	/**
-	 * Get the path to current term.
-	 * 
+	 * Fetch all child of a term.
+	 *
+	 * @param integer  $termId
 	 * @return Term[]
-	 * @todo no consideration of multiple parents
 	 */
-	public function getPath() {
-		$parentIds = TermHierarchy::fetchAncestors($this->tid, $this->vid);
-		$path = static::load($parentIds);
-		$path[] = $this;
-		return $path;
+	public static function fetchChildren($termId, $vid = null) {
+		if ($vid === null) {
+			$vid = self::getVocabularyId();
+		}
+		$children = TermHierarchy::model()->getChildren($termId, $vid);
+		$ret = array();
+		foreach ($children as $child) {
+			$term = self::model()->findByPk($child);
+			if ($term) {
+				$term->setParents(TermHierarchy::model()->getParents($term->tid, $vid));
+				$ret[$term->tid] = $term;
+			}
+		}
+		return $ret;
+	}
+	
+	public static function fetchToplevels($vid = null) {
+		return static::fetchChildren(0, $vid);
 	}
 	
 	/**
@@ -262,23 +315,34 @@ class Term extends CActiveRecord {
 		return TermEntity::model()->count($criteria);
 	}
 	
+	
 	/**
-	 * Create a new term using given arguments.
+	 * Create a new term.
 	 * 
-	 * @param string  $name
-	 * @param string  $description
-	 * @param integer $weight
-	 * @return Term
+	 * @param array $attributes
+	 * @return boolean
 	 */
-	public static function create($name, $description = '', $weight = 0) {
-		$class = get_called_class();
-		$term = new $class();
-		$term->vid = $term->vocabulary()->vid;
-		$term->name = $name;
-		$term->description = $description;
-		$term->weight = $weight;
-		$term->save(false);
-		return $term;
+	public function create(array $attributes) {
+		if (!isset($attributes['vid'])) {
+			$attributes['vid'] = $this->getVocabularyId();
+		}
+		$parent = 0;
+		if (isset($attributes['parent'])) {
+			$parent = $attributes['parent'];
+			unset($attributes['parent']);
+		}
+		$this->setIsNewRecord(true);
+		$this->setAttributes($attributes);
+
+		if ($this->save()) {
+			TermHierarchy::add($this->tid, $parent, $this->vid);
+			$newTerm = clone $this;
+			if ($parent) {
+				$newTerm->setParents(array($parent));
+			}
+			return $newTerm;
+		}
+		return false;
 	}
 	
 	/**
@@ -338,24 +402,6 @@ class Term extends CActiveRecord {
 	}
 	
 	/**
-	 * Fetch all child of a term.
-	 * 
-	 * @param integer  $termId
-	 * @return Term[]
-	 */
-	public static function fetchChildren($termId) {
-		$children = TermHierarchy::fetchChildren($termId);
-		$ret = array();
-		foreach ($children as $child) {
-			$term = self::model()->findByPk($child);
-			if ($term) {
-				$ret[] = $term;
-			}
-		}
-		return $ret;
-	}
-	
-	/**
 	 * Fetch all terms attached to specified entity.
 	 * 
 	 * @param integer $entityId
@@ -367,7 +413,22 @@ class Term extends CActiveRecord {
 		return new CArrayDataProvider($terms);
 	}
 	
+	
+	
 	public function getEntityProvider($entityType, $pageSize = 10) {
 		
+	}
+	
+	protected function beforeSave() {
+		return parent::beforeSave();
+	}
+	
+	protected function afterSave() {
+		return parent::afterSave();
+	}
+	
+	protected function afterDelete() {
+		//TODO remove hierarchy relations
+		return parent::afterDelete();
 	}
 }

@@ -24,6 +24,20 @@ class TermVocabulary extends CActiveRecord {
 	}
 	
 	/**
+	 * Load a term vocabulary by its identifier.
+	 * 
+	 * @param mixed $identifier
+	 * @return TermHierarchy
+	 */
+	public static function load($identifier) {
+		if (is_numeric($identifier)) {
+			return self::model()->findByPk($identifier);
+		}else {
+			return self::loadByMName($identifier);
+		}
+	}
+	
+	/**
 	 * Load vocabulary by its mname.
 	 *
 	 * @param string $mname
