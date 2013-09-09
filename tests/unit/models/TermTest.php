@@ -32,7 +32,7 @@ class TermTest extends CDbTestCase {
 	}
 	
 	public function testCreate() {
-		$model = Term::model();
+		$model = Tree::model();
 		$term = $model->create(array(
 			'name' => 'test term',
 			'vid' => 1,
@@ -43,7 +43,7 @@ class TermTest extends CDbTestCase {
 		$term->delete();
 		$this->assertCount(2, Term::fetchChildren(0, 1));
 		
-		$term = Term::model()->create(array(
+		$term = Tree::model()->create(array(
 			'name' => 'sub term of 2',
 			'vid' => 1,
 			'parent' => 2,

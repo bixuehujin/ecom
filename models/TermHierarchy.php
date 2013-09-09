@@ -22,9 +22,14 @@ class TermHierarchy extends CActiveRecord {
 		return 'term_hierarchy';
 	}
 
-	protected function preload($vid) {
+	public function preload($vid, $force = false) {
 		$cacheChildren = &self::$cacheChildren[$vid];
 		$cacheParents  = &self::$cacheParents[$vid];
+		
+		if ($force) {
+			$cacheChildren = $cacheParents = null;
+		}
+		
 		if (isset($cacheChildren)) {
 			return;
 		}
@@ -43,6 +48,26 @@ class TermHierarchy extends CActiveRecord {
 				$cacheChildren[$parent] = array($tid);
 			}else {
 				$cacheChildren[$parent][] = $tid;
+			}
+		}
+	}
+	
+	protected function removeFormCache($tid, $parent, $vid) {
+		$cacheChildren = &self::$cacheChildren[$vid];
+		if (!isset($cacheChildren)) {
+			return;
+		}
+		
+		if (isset($cacheChildren[$parent])) {
+			if (($key = array_search($tid, $cacheChildren[$parent])) !== false) {
+				unset($cacheChildren[$parent][$key]);
+			}
+		}
+		
+		$cacheParents = &self::$cacheParents[$vid];
+		if (isset($cacheParents[$tid])) {
+			if (($key = array_search($parent, $cacheParents[$tid])) !== false) {
+				unset($cacheParents[$tid][$key]);
 			}
 		}
 	}
@@ -90,20 +115,6 @@ class TermHierarchy extends CActiveRecord {
 		}
 	}
 	
-	/**
-	 * Remove a term hierarchy record.
-	 * 
-	 * @param integer $tid
-	 * @param integer $parent
-	 * @return boolean
-	 */
-	public static function remove($tid, $parent, $vid) {
-		return (bool)self::model()->deleteAllByAttributes(array(
-			'tid' => $tid,
-			'parent' => $parent,
-			'vid' => $vid
-		));
-	}
 	
 	public function getParents($tid, $vid) {
 		$this->preload($vid);
@@ -122,6 +133,96 @@ class TermHierarchy extends CActiveRecord {
 		return array();
 	}
 	
+	/**
+	 * Get all sub nodes of a term.
+	 * 
+	 * @param integer $tid
+	 * @param integer $vid
+	 * @return array array tid => parent
+	 */
+	public function getChildrenRecursively($tid, $vid) {
+		$ret = array();
+		
+		$children = $this->getChildren($tid, $vid);
+		$nodes = array();
+		foreach ($children as $child) {
+			$nodes[$child] = $tid;
+		}
+		
+		$ret += $nodes;
+		
+		foreach ($children as $child) {
+			$ret += $this->getChildrenRecursively($child, $vid);
+		}
+		
+		return $ret;
+	}
+	
+	/**
+	 * Remove a term and all its sub terms.
+	 * 
+	 * @param unknown $tid
+	 * @param unknown $parent
+	 * @param unknown $vid
+	 */
+	public function removeAll($tid, $parent, $vid) {
+		$nodes = $this->getChildrenRecursively($tid, $vid);
+		$ret = 0;
+		foreach ($nodes as $nodeId => $nodeParent) {
+			$ret += $this->removeInternal($nodeId, $nodeParent, $vid);
+		}
+		$ret += $this->removeInternal($tid, $parent, $vid);
+		return $ret;
+	}
+	
+	protected function removeInternal($tid, $parent, $vid) {
+		$this->removeFormCache($tid, $parent, $vid);
+		return $this->deleteAllByAttributes(array(
+			'vid' => $vid,
+			'tid' => $tid,
+			'parent' => $parent
+		));
+	}
+	
+	/**
+	 * Returns whether a term has children.
+	 * 
+	 * @param integer $tid
+	 * @param integer $vid
+	 * @return boolean
+	 */
+	public function hasChildren($tid, $vid) {
+		$this->preload($vid);
+		return isset(self::$cacheChildren[$vid][$tid]);
+	}
+	
+	/**
+	 * Move a term to a new parent.
+	 * 
+	 * @param integer $id
+	 * @param integer $parent
+	 * @param integer $targetParent
+	 * @param integer $vid
+	 * @return boolean
+	 */
+	public function move($id, $parent, $targetParent, $vid) {
+		if ($parent == $targetParent) {
+			return true;
+		}
+		
+		$hierarchy = $this->findByAttributes(array(
+			'vid' => $vid, 'tid' => $id, 'parent' => $parent
+		));
+		if ($hierarchy) {
+			$hierarchy->parent = $targetParent;
+			if ($hierarchy->save(false, array('parent'))) {
+				$this->removeFormCache($id, $parent, $vid);
+				$this->addToCache($id, $targetParent, $vid);
+				return true;
+			}
+		}
+		return false;
+	}
 	
 	/**
 	 * Fetch all ancestors of a term.

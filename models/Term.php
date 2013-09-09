@@ -9,8 +9,6 @@ class Term extends CActiveRecord {
 
 	private static $vocabularyId;
 	
-	private $_parents = null;// parent tids of current term object
-	
 	/**
 	 * @return Term
 	 */
@@ -33,28 +31,6 @@ class Term extends CActiveRecord {
 			array('name,vid', 'required'),
 			array('description,weight', 'safe'),
 		);
-	}
-	
-	public function setParents(array $parents) {
-		$this->_parents = $parents;
-	}
-	
-	public function getParents() {
-		if ($this->_parents === null) {
-			$parents = TermHierarchy::model()->getParents($this->tid, $this->getVocabularyId());
-			$this->_parents = array();
-			foreach ($parents as $parent) {
-				if ($parent) {
-					$this->_parents[] = $parent;
-				}
-			}
-			
-		}
-		return $this->_parents;
-	}
-	
-	public function getParent() {
-		return isset($this->_parents[0]) ? $this->_parents[0] : null;
 	}
 	
 	/**
@@ -275,6 +251,15 @@ class Term extends CActiveRecord {
 	}
 	
 	/**
+	 * Return whether the term has children.
+	 * 
+	 * @return boolean
+	 */
+	public function getHasChildren() {
+		return TermHierarchy::model()->hasChildren($this->tid, $this->vid);
+	}
+	
+	/**
 	 * Fetch all child of a term.
 	 *
 	 * @param integer  $termId
@@ -289,7 +274,6 @@ class Term extends CActiveRecord {
 		foreach ($children as $child) {
 			$term = self::model()->findByPk($child);
 			if ($term) {
-				$term->setParents(TermHierarchy::model()->getParents($term->tid, $vid));
 				$ret[$term->tid] = $term;
 			}
 		}
@@ -313,36 +297,6 @@ class Term extends CActiveRecord {
 			$criteria->addCondition('entity_type=' . $entityType);
 		}
 		return TermEntity::model()->count($criteria);
-	}
-	
-	
-	/**
-	 * Create a new term.
-	 * 
-	 * @param array $attributes
-	 * @return boolean
-	 */
-	public function create(array $attributes) {
-		if (!isset($attributes['vid'])) {
-			$attributes['vid'] = $this->getVocabularyId();
-		}
-		$parent = 0;
-		if (isset($attributes['parent'])) {
-			$parent = $attributes['parent'];
-			unset($attributes['parent']);
-		}
-		$this->setIsNewRecord(true);
-		$this->setAttributes($attributes);
-
-		if ($this->save()) {
-			TermHierarchy::add($this->tid, $parent, $this->vid);
-			$newTerm = clone $this;
-			if ($parent) {
-				$newTerm->setParents(array($parent));
-			}
-			return $newTerm;
-		}
-		return false;
 	}
 	
 	/**
