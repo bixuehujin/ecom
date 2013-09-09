@@ -57,6 +57,8 @@ class AjaxReturn extends CComponent {
 	
 	private $_data;
 	
+	public $showStatusOnSuccess = true;
+	
 	public function setCode($code) {
 		$this->_code = $code;
 		return $this;
@@ -77,11 +79,16 @@ class AjaxReturn extends CComponent {
 	 */
 	public function send(){
 		$return = array();
-		$return['code'] = $this->_code;
-		$return['msg'] = $this->_msg ?: 
+
+		if (!$this->_code && !$this->showStatusOnSuccess) {
+			$return = $this->_data;
+		}else {
+			$return['code'] = $this->_code;
+			$return['msg'] = $this->_msg ?:
 			(isset($this->_internalState[$this->_code]) ? $this->_internalState[$this->_code] : '');
-		if ($this->_data) {
-			$return['data'] = $this->_data;
+			if ($this->_data) {
+				$return['data'] = $this->_data;
+			}
 		}
 		
 		header('Content-Type: application/json');
