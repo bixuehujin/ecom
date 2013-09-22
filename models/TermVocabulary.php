@@ -32,8 +32,12 @@ class TermVocabulary extends CActiveRecord {
 	public static function load($identifier) {
 		if (is_numeric($identifier)) {
 			return self::model()->findByPk($identifier);
-		}else {
+		}else if (is_string($identifier)){
 			return self::loadByMName($identifier);
+		}else if ($identifier instanceof self) {
+			return $identifier;
+		}else {
+			throw new InvalidArgumentException('Invalid argument for TermVocabulary::load().');
 		}
 	}
 	

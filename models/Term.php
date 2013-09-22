@@ -7,13 +7,18 @@
 
 class Term extends CActiveRecord {
 
-	private static $vocabularyId;
+	private $_vocabularyId;
+	private $_vocabulary;
 	
 	/**
 	 * @return Term
 	 */
-	public static function model($className = null) {
-		return parent::model(get_called_class());
+	public static function model($className = null, $vocabulary = null) {
+		$instance = parent::model(get_called_class());
+		if ($vocabulary) {
+			$instance->_vocabulary = TermVocabulary::load($vocabulary);
+		}
+		return $instance;
 	}
 	
 	public function tableName() {
@@ -40,15 +45,19 @@ class Term extends CActiveRecord {
 	 * @return TermVocabulary
 	 */
 	public function vocabulary() {
-		throw new CException('Using default vocabulary should override the vocabulary() method.');
+		if ($this->_vocabulary instanceof TermVocabulary && $this->_vocabulary->vid) {
+			return $this->_vocabulary;
+		}else {
+			throw new CException('Using default vocabulary should override the vocabulary() method.');
+		}
 	}
 	
 	public  function getVocabularyId() {
-		if (self::$vocabularyId === null) {
-			$t = static::model()->vocabulary();
-			self::$vocabularyId = $t->vid;
+		if ($this->_vocabularyId === null) {
+			$t = $this->vocabulary();
+			$this->_vocabularyId = $t->vid;
 		}
-		return self::$vocabularyId;
+		return $this->_vocabularyId;
 	}
 	
 	/**
@@ -331,29 +340,6 @@ class Term extends CActiveRecord {
 		}
 	}
 	
-	/**
-	 * Get the term path from root term to current.
-	 * 
-	 * @return Term[]
-	 */
-	public static function fetchTermPath($termId, $vid) {
-		$parents = TermHierarchy::model()->getParents($termId, $vid);
-		if (!isset($parents[$termId])) {
-			return array();
-		}
-		$parents = $parents[$termId];
-		$parents = array_reverse($parents);
-		$parents[] = $termId;
-		$terms = self::loadByIds($parents, true);
-		
-		$ret = array();
-		foreach ($parents as $parent) {
-			if (isset($terms[$parent])) {
-				$ret[] = $terms[$parent];
-			}
-		}
-		return $ret;
-	}
 	
 	/**
 	 * Fetch all terms attached to specified entity.

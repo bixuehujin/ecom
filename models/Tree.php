@@ -92,4 +92,26 @@ class Tree extends Term {
 		}
 		return $removed;
 	}
+	
+	/**
+	 * Get the Route from root node to current node.
+	 */
+	public function getPath() {
+		return self::fetchPath($this->tid, $this->getVocabularyId());
+	}
+	
+	/**
+	 * Get the tree path from root to current.
+	 *
+	 * @return Tree[]
+	 */
+	public static function fetchPath($termId, $vid) {
+		$path = array(static::load($termId));
+		$parents = TermHierarchy::model()->getParents($termId, $vid);
+		while (!empty($parents[0])) {
+			$path[] = static::load($parents[0]);
+			$parents = TermHierarchy::model()->getParents($parents[0], $vid);
+		}
+		return array_reverse($path);
+	}
 }

@@ -5,6 +5,12 @@
  * @author Jin Hu <bixuehujin@gmail.com>
  */
 
+class ExampleTree extends Tree {
+	public function vocabulary() {
+		return TermVocabulary::load(1);
+	}
+}
+
 class TreeTest extends CDbTestCase {
 	
 	public $fixtures = array(
@@ -36,5 +42,15 @@ class TreeTest extends CDbTestCase {
 		
 		$this->setUp();
 		TermHierarchy::model()->preload(1, true);
+	}
+	
+	public function testGetPath() {
+		$tree = ExampleTree::load(5);
+		$path = $tree->getPath();
+		$this->assertEquals(array(1, 3, 5), Utils::arrayColumns($path, 'tid'));
+		
+		$tree = ExampleTree::load(2);
+		$path = $tree->getPath();
+		$this->assertEquals(array(2), Utils::arrayColumns($path, 'tid'));
 	}
 }
