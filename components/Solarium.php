@@ -52,9 +52,6 @@ class Solarium extends CApplicationComponent{
      * @see CApplicationComponent::init()
      */
     public function init(){
-    	$vendorPath = Yii::getPathOfAlias('application');
-        Yii::setPathOfAlias('Solarium', $vendorPath . '/vendors/Solarium');
-        Yii::setPathOfAlias('Symfony', $vendorPath . '/vendors/Symfony');
 
         $this->client = new Solarium\Client($this->clientOptions);
 
