@@ -96,8 +96,12 @@ class Tree extends Term {
 	/**
 	 * Get the Route from root node to current node.
 	 */
-	public function getPath() {
-		return self::fetchPath($this->tid, $this->getVocabularyId());
+	public function getPath($onlyIds = false) {
+		$path = self::fetchPath($this->tid, $this->getVocabularyId());
+		if ($onlyIds) {
+			$path = Utils::arrayColumns($path, 'tid');
+		}
+		return $path;
 	}
 	
 	/**
