@@ -29,7 +29,7 @@ class AttachedData extends CActiveRecord {
 	public function behaviors() {
 		return array(
 			'SerializeBehavior' => array(
-				'class' => 'ext.common.behaviors.SerializeBehavior',
+				'class' => 'ecom.behaviors.SerializeBehavior',
 				'attributes' => array('data'),
 			),
 			'CTimestampBehavior' => array(

@@ -5,7 +5,7 @@
  * @author Jin Hu <bxieuhujin@gmail.com>
  */
 
-Yii::setPathOfAlias('Mailgun', Yii::getPathOfAlias('ext.common.libs.Mailgun'));
+Yii::setPathOfAlias('Mailgun', Yii::getPathOfAlias('ecom.libs.Mailgun'));
 
 use Mailgun\Client;
 use Mailgun\Message;
