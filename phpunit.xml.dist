@@ -26,5 +26,9 @@
     	<var name="db_dsn" value="mysql:dbname=yii-common;host=localhost"/>
     	<var name="db_user" value="test" />
     	<var name="db_passwd" value="test" />
+    	
+    	<const name="WEB_SERVER_HOST" value="localhost" />
+    	<const name="WEB_SERVER_PORT" value="7777" />
+    	<const name="WEB_SERVER_DOCROOT" value="./tests/" />
     </php>
 </phpunit>
