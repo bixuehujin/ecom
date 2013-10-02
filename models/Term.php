@@ -253,10 +253,11 @@ class Term extends CActiveRecord {
 	/**
 	 * Get all children of the Term.
 	 * 
+	 * @param boolean $onlyIds
 	 * @return Term[] terms indexed by tid
 	 */
-	public function children() {
-		return self::fetchChildren($this->tid, $this->vid);
+	public function children($onlyIds = false) {
+		return self::fetchChildren($this->tid, $this->vid, $onlyIds);
 	}
 	
 	/**
@@ -271,14 +272,19 @@ class Term extends CActiveRecord {
 	/**
 	 * Fetch all child of a term.
 	 *
-	 * @param integer  $termId
-	 * @return Term[]
+	 * @param integer $termId
+	 * @param integer $vid
+	 * @param boolean $onlyIds
+	 * @return Term[]|integer[]
 	 */
-	public static function fetchChildren($termId, $vid = null) {
+	public static function fetchChildren($termId, $vid = null, $onlyIds = false) {
 		if ($vid === null) {
-			$vid = self::getVocabularyId();
+			$vid = self::model()->getVocabularyId();
 		}
 		$children = TermHierarchy::model()->getChildren($termId, $vid);
+		if ($onlyIds) {
+			return $children;
+		}
 		$ret = array();
 		foreach ($children as $child) {
 			$term = self::model()->findByPk($child);
