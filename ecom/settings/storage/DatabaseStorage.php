@@ -94,11 +94,11 @@ class DatabaseStorage extends CActiveRecord implements StorageInterface {
 		return parent::deleteAll($criteria);
 	}
 	
-	public function exists($key, $_ = null) {
+	public function exists($key = '', $_ = null) {
 		return parent::exists("name='$key'");
 	}
 	
-	public function deleteAll() {
+	public function deleteAll($_ = null, $__ = null) {
 		return parent::deleteAll();
 	}
 }
