@@ -9,7 +9,12 @@ use Yii;
 use CActiveRecord;
 use CDbCriteria;
 
-class DatabaseStorage extends CActiveRecord implements StorageInterface{
+/**
+ * The RDBMS setting storage backend implementation.
+ *  
+ * @property string $db The database connection id used for storing and retrieving data from.
+ */
+class DatabaseStorage extends CActiveRecord implements StorageInterface {
 	
 	public function tableName() {
 		return '{{setting}}';
