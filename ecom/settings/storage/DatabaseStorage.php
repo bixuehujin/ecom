@@ -17,7 +17,11 @@ use CDbCriteria;
 class DatabaseStorage extends CActiveRecord implements StorageInterface {
 	
 	public function tableName() {
-		return '{{setting}}';
+		if ($this->getDbConnection()->tablePrefix !== null) {
+			return '{{setting}}';
+		}else {
+			return 'setting';
+		}
 	}
 	
 	public static function model($className = __CLASS__) {
