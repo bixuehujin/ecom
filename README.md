@@ -1,6 +1,6 @@
 # ecom
 
-ecom is a set of components and libraries aim to simplify Yii application development.
+A set of components and libraries aim to simplify Yii application development.
 
 ## Instalation
 
