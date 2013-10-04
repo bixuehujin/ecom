@@ -1,5 +1,6 @@
 <?php
-require __DIR__ . '/../vendor/autoload.php';
+$loader = require __DIR__ . '/../vendor/autoload.php';
+$loader->add('ecom', __DIR__ . '/../../');
 
 $yiit = __DIR__ . '/../vendor/yiisoft/yii/framework/yiit.php';
 $config = __DIR__ . '/config.php';

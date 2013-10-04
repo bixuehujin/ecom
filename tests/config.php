@@ -43,6 +43,7 @@ return array(
 			'username' => 'test',
 			'password' => 'test',
 			'charset' => 'utf8',
+			'tablePrefix' => '',
 		),
 		'redis'=>array(
 			'class'=>'redis.ARedisConnection',
