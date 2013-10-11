@@ -16,9 +16,9 @@ use ecom\settings\storage\DatabaseStorage;
 /**
  * Settings Component provide key-value storage to save settings.
  * 
- * @property StorageInterface $storage The backend storage used by the settings component, default will use DatabaseStorage.
+ * @property array $storage The backend storage configuration, default will use DatabaseStorage.
  */
-class Settings extends CApplicationComponent implements ArrayAccess{
+class Settings extends CApplicationComponent implements ArrayAccess {
 	
 	/**
 	 * @var StorageInterface
@@ -34,7 +34,7 @@ class Settings extends CApplicationComponent implements ArrayAccess{
 	public function setStorage($config) {
 		$object = Yii::createComponent($config);
 		if (!$object instanceof StorageInterface) {
-			throw new \CException('The storage object must be instance of "ecom\settings\storage\StorageInterface"');
+			throw new \CException('The storage object must be an instance of "ecom\settings\storage\StorageInterface"');
 		}
 		$this->storage = $object;
 	}
