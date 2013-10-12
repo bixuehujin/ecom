@@ -10,8 +10,8 @@ The recommended way to install ecom-settings is via [composer](http://getcompose
 
     ```
     "require": {
-    	...
-    	"ecom/settings": "dev-master"
+        ...
+        "ecom/settings": "dev-master"
     	...
     }
     ```
@@ -23,13 +23,47 @@ The recommended way to install ecom-settings is via [composer](http://getcompose
     $ php composer.phar update
     ```
 
-
 ## Features
 
 * Multiple storage backend support, such as RDMBS database and Redis.
 * Custom storage backend support, by implement the StorageInterface interface.
 * ArrayAccess support, you can access settings just like arrays.
 
+
+## Usage
+
+1. Import the table schema located in data directory
+
+2. Set up settings as application component
+
+  ```php
+  //...
+  'aliases' => array(
+      'ecom' => 'application.vendors.ecom',
+  ),
+  'components' => array(
+      //...
+      'settings' => array(
+          'class' => 'ecom\settings\Settings',
+      ),
+      //...
+  ),
+  //...
+  ```
+  
+3. Store settings via settings component.
+
+  ```php
+  $settings = Yii::app()->getSettings();
+  $settings->set('foo', 'value of foo');
+  $bar = $settings->get('bar', 'default value');
+  $settings->delete('foo');
+  
+  //you can also using settings like arrays
+  $settings['foo'] = 'value of foo';
+  $bar = $settings['bar'];
+  unset($settings['foo']);
+  ```
 
 ## Authors
 
