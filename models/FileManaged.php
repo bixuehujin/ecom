@@ -121,10 +121,11 @@ class FileManaged extends CActiveRecord {
 		$model = self::model()->findByPk($fid);
 		if ($model) {
 			$path = Yii::app()->fileManager->getPathOfDomain($model->domain) . '/' . $model->name;
-			if (unlink($path)) {
-				$model->delete();
-				return true;
+			if (file_exists($path)) {
+				unlink($path);
 			}
+			$model->delete();
+			return true;
 		}
 		return false;
 	}
