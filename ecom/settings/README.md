@@ -2,6 +2,14 @@
 
 The settings component of ecom.
 
+
+## Features
+
+* Multiple storage backend support, such as RDMBS database and Redis.
+* Custom storage backend support, by implement the StorageInterface interface.
+* ArrayAccess support, you can access settings just like arrays.
+
+
 ## Installation
 
 The recommended way to install ecom-settings is via [composer](http://getcomposer.org).
@@ -22,13 +30,6 @@ The recommended way to install ecom-settings is via [composer](http://getcompose
     $ cd /path/to/project
     $ php composer.phar update
     ```
-
-## Features
-
-* Multiple storage backend support, such as RDMBS database and Redis.
-* Custom storage backend support, by implement the StorageInterface interface.
-* ArrayAccess support, you can access settings just like arrays.
-
 
 ## Usage
 
@@ -54,7 +55,7 @@ The recommended way to install ecom-settings is via [composer](http://getcompose
 3. Store settings via settings component.
 
   ```php
-  $settings = Yii::app()->getSettings();
+  $settings = Yii::app()->getComponent('settings');
   $settings->set('foo', 'value of foo');
   $bar = $settings->get('bar', 'default value');
   $settings->delete('foo');
