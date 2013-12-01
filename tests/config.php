@@ -1,12 +1,13 @@
 <?php
 return array(
-	'basePath'=>dirname(__FILE__).DIRECTORY_SEPARATOR.'..',
+	'basePath'=>__DIR__,
 	'name'=>'Yii-common testing application',
 	'timeZone' => 'Asia/Shanghai',
 	// preloading 'log' component
 	'preload'=>array('log'),
 	'aliases' => array(
-		'common' => __DIR__ . '/../'
+		'common' => __DIR__ . '/../',
+		'ecom' => __DIR__ . '/../ecom'
 	),
 	'import'=>array(
 		'common.models.*',
@@ -22,11 +23,13 @@ return array(
 		'common'=>array(
 			'class'=>'common.components.Common',
 		),
-		'fileManager'=>array(
-			'class'=>'common.components.FileManager',
-			'basePath' => 'files',
+		'fileManager' => array(
+			'class' => 'ecom\file\FileManager',
+			'basePath' => __DIR__ . '/file',
 			'domains' => array(
-				'pictures' => 'pictures',
+				'avatar' => array(
+					
+				),
 			),
 		),
 		'urlManager'=>array(
@@ -36,6 +39,7 @@ return array(
 		),
 		'fixture'=>array(
 			'class'=>'system.test.CDbFixtureManager',
+			'basePath' => __DIR__ . '/fixtures'
 		),
 		'db'=>array(
 			'connectionString' => 'mysql:dbname=yii-common;host=localhost',
