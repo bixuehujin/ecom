@@ -1,11 +1,11 @@
-<?php namespace ecom\tests\settings;
+<?php namespace ecom\tests\setting;
 /**
- * SettingsTestCase class file.
+ * SettingTestCase class file.
  * 
  * @author Jin Hu <bixuehujin@gmail.com>
  */
 
-abstract class SettingsTestCase extends \CDbTestCase {
+abstract class SettingTestCase extends \CDbTestCase {
 	
 	abstract public function getTarget();
 	

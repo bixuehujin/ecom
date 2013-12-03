@@ -10,8 +10,8 @@ use ArrayAccess;
 use IteratorAggregate;
 use ArrayIterator;
 use CApplicationComponent;
-use ecom\settings\storage\StorageInterface;
-use ecom\settings\storage\DatabaseStorage;
+use ecom\setting\storage\StorageInterface;
+use ecom\setting\storage\DatabaseStorage;
 
 /**
  * Setting Component provide key-value storage to save settings.

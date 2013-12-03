@@ -1,19 +1,19 @@
-<?php namespace ecom\tests\settings;
+<?php namespace ecom\tests\setting;
 /**
  * ComponentTest class file.
  * 
  * @author Jin Hu <bixuehujin@gmail.com>
  */
 
-class ComponentTest extends SettingsTestCase {
+class ComponentTest extends SettingTestCase {
 	
 	protected $fixtures = array(
-		'setting' => 'ecom\settings\storage\DatabaseStorage'
+		'setting' => 'ecom\setting\storage\DatabaseStorage'
 	);
 	
 	public function getTarget() {
 		return \Yii::createComponent(array(
-			'class' => 'ecom\settings\Settings',
+			'class' => 'ecom\setting\Setting',
 		));
 	}
 	

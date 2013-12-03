@@ -1,16 +1,16 @@
-<?php namespace ecom\tests\settings;
+<?php namespace ecom\tests\setting;
 /**
  * DatabaseStorageTest class file.
  * 
  * @author Jin Hu <bixuehujin@gmail.com>
  */
 
-use ecom\settings\storage\DatabaseStorage;
+use ecom\setting\storage\DatabaseStorage;
 
-class DatabaseStorageTest extends SettingsTestCase {
+class DatabaseStorageTest extends SettingTestCase {
 	
 	protected $fixtures = array(
-		'setting' => 'ecom\settings\storage\DatabaseStorage'
+		'setting' => 'ecom\setting\storage\DatabaseStorage'
 	);
 	
 	public function getTarget() {
