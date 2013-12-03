@@ -1,6 +1,6 @@
-<?php namespace ecom\settings;
+<?php namespace ecom\setting;
 /**
- * Settings class file.
+ * Setting class file.
  * 
  * @author Jin Hu <bixuehujin@gmail.com>
  */
@@ -14,11 +14,11 @@ use ecom\settings\storage\StorageInterface;
 use ecom\settings\storage\DatabaseStorage;
 
 /**
- * Settings Component provide key-value storage to save settings.
+ * Setting Component provide key-value storage to save settings.
  * 
  * @property array $storage The backend storage configuration, default will use DatabaseStorage.
  */
-class Settings extends CApplicationComponent implements ArrayAccess {
+class Setting extends CApplicationComponent implements ArrayAccess {
 	
 	/**
 	 * @var StorageInterface
@@ -26,7 +26,7 @@ class Settings extends CApplicationComponent implements ArrayAccess {
 	private $storage;
 	
 	/**
-	 * Sets the storage backend of the settings component.
+	 * Sets the storage backend of the setting component.
 	 * 
 	 * @param mixed $config The configration for create storage object.
 	 * @throws \CException

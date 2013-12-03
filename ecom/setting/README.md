@@ -1,6 +1,6 @@
-# ecom-settings
+# ecom-setting
 
-The settings component of ecom.
+The setting component of ecom.
 
 
 ## Features
@@ -12,14 +12,14 @@ The settings component of ecom.
 
 ## Installation
 
-The recommended way to install ecom-settings is via [composer](http://getcomposer.org).
+The recommended way to install ecom-setting is via [composer](http://getcomposer.org).
 
 1. Add a single line to composer.json:
 
     ```
     "require": {
         ...
-        "ecom/settings": "dev-master"
+        "ecom/setting": "dev-master"
     	...
     }
     ```
@@ -44,18 +44,18 @@ The recommended way to install ecom-settings is via [composer](http://getcompose
   ),
   'components' => array(
       //...
-      'settings' => array(
-          'class' => 'ecom\settings\Settings',
+      'setting' => array(
+          'class' => 'ecom\settings\Setting',
       ),
       //...
   ),
   //...
   ```
   
-3. Store settings via settings component.
+3. Store settings via setting component.
 
   ```php
-  $settings = Yii::app()->getComponent('settings');
+  $settings = Yii::app()->getComponent('setting');
   $settings->set('foo', 'value of foo');
   $bar = $settings->get('bar', 'default value');
   $settings->delete('foo');

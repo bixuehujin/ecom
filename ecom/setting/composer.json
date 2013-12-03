@@ -1,9 +1,9 @@
 {
-    "name": "ecom/settings",
+    "name": "ecom/setting",
     "type": "library",
-    "description": "The settings component of ecom",
-    "keywords": ["yii", "component", "extention", "settings"],
-    "homepage": "https://github.com/bixuehujin/ecom-settings",
+    "description": "The setting component of ecom",
+    "keywords": ["yii", "component", "extention", "setting"],
+    "homepage": "https://github.com/bixuehujin/ecom-setting",
     "license": "MIT",
     "authors": [
         {

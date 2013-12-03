@@ -1,4 +1,4 @@
-<?php namespace ecom\settings\storage;
+<?php namespace ecom\setting\storage;
 /**
  * DatabaseStorage class file.
  * 
