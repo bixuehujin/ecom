@@ -14,10 +14,15 @@ use ecom\file\model\FileManaged;
 
 class FileManagedTest extends \CDbTestCase {
 	
-	public $fixtures = array(
+	protected $fixtures = array(
 		'file_managed' => 'ecom\file\model\FileManaged',
 		'file_usage' => 'ecom\file\model\FileUsage',
 	);
+	
+	protected function setUp() {
+		parent::setUp();
+		Yii::app()->user->setId(1);
+	}
 	
 	public function testGetAccessUrl() {
 		$fileManaged = Yii::app()->fileManager->createManagedObject('avatar');
@@ -30,9 +35,9 @@ class FileManagedTest extends \CDbTestCase {
 		var_dump($fileManaged->getAccessUrl(true));
 	}
 	
-	protected function getUploadedFileStub() {
+	protected function getUploadedFileStub($fileName = 'test.jpg') {
 		$builder = $this->getMockBuilder('CUploadedFile');
-		$args = array('test.jpg', '/tmp/xxx', 'image/jpeg', 100, 0);
+		$args = array($fileName, '/tmp/xxx', 'image/jpeg', 100, 0);
 		$builder->setConstructorArgs($args);
 		$builder->setMethods(array('saveAs'));
 		
@@ -76,12 +81,15 @@ class FileManagedTest extends \CDbTestCase {
 		}
 	}
 	
-	
-	public function testUpload() {
+	protected function uploadTempFile() {
 		$stub = $this->getUploadedFileStub();
 		$fileManaged = $this->createManagedObject(array());
 		
-		$newFile = $fileManaged->upload($stub);
+		return $fileManaged->upload($stub);
+	}
+	
+	public function testUpload() {
+		$newFile = $this->uploadTempFile();
 		
 		$this->assertInstanceOf('ecom\file\model\FileManaged', $newFile);
 		
@@ -97,7 +105,29 @@ class FileManagedTest extends \CDbTestCase {
 	}
 	
 	public function testReplace() {
+		$newFile = $this->uploadTempFile();
+		$entity1 = new TestEntity(1);
+		$newFile->attach($entity1);
 		
+		
+		$replacedFile = $newFile->replace($entity1, $this->getUploadedFileStub('2.jpg'));
+		$this->assertEquals($newFile->fid, $replacedFile->fid);
+		$this->assertEquals('2.jpg', $replacedFile->name);
+		$this->assertEquals(1, FileUsage::model()->count());
+		
+		$entity2 = new TestEntity(2);
+		$newFile->attach($entity2);
+		$this->assertEquals(2, FileUsage::model()->count());
+		$this->assertEquals(1, FileManaged::model()->count());
+		
+		
+		$replacedFile = $newFile->replace($entity1, $this->getUploadedFileStub('3.jpg'));
+		$this->assertNotEquals($replacedFile->fid, $newFile->fid);
+		$this->assertEquals(2, FileUsage::model()->count());
+		
+		$this->assertEquals(true, $replacedFile->detach($entity1));
+		$this->assertEquals(false, $newFile->detach($entity1));
+		$this->assertEquals(true, $newFile->detach($entity2));
 	}
 }
 

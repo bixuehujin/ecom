@@ -136,7 +136,8 @@ class FileManaged extends \CActiveRecord implements FileManagedInterface {
 	 * @return boolean
 	 */
 	private function remove() {
-		if (unlink($this->getRealPath())) {
+		$realpath = $this->getRealPath();
+		if (!file_exists($realpath) || unlink($realpath)) {
 			$this->delete();
 			return true;
 		}else {
@@ -222,16 +223,16 @@ class FileManaged extends \CActiveRecord implements FileManagedInterface {
 		$entityId = $entity->getEntityId();
 		$entityType = $entity->getEntityType();
 		
-		$criteria = new \CDbCriteria();
-		$criteria->addColumnCondition(array(
+		$pk = array(
 			'fid' => $this->fid,
 			'entity_id' => $entityId,
 			'entity_type' => $entityType,
 			'type' => $usageType,
-		));
-		
-		if (FileUsage::model()->delete($criteria)) {
-			
+		);
+		if (FileUsage::model()->deleteByPk($pk)) {
+			if (!$this->getUsageCount($usageType)) {
+				$this->remove();
+			}
 			return true;
 		}
 		return false;
@@ -246,13 +247,13 @@ class FileManaged extends \CActiveRecord implements FileManagedInterface {
 	 * @return FileManaged|false
 	 */
 	public function replace(FileAttachable $entity, \CUploadedFile $uploadedFile, $usageType = FileAttachable::USAGE_TYPE_DEFAULT) {
-		$usageCount = static::fetchAttachedCountOf($entity, $usageType);
+		$usageCount = $this->getUsageCount($usageType);
 		if ($usageCount == 1) {
 			$this->name = $uploadedFile->getName();
 			$this->mime = $uploadedFile->getType();
 			$this->size = $uploadedFile->getSize();
-			
-			if (unlink($this->getRealPath()) && $uploadedFile->saveAs($this->getRealPath(true))) {
+			$realPath = $this->getRealPath();
+			if ((!file_exists($realPath) || unlink($rea)) && $uploadedFile->saveAs($this->getRealPath(true))) {
 				if ($this->save(false, array('name', 'mime', 'size'))) {
 					return $this;
 				}
@@ -383,6 +384,15 @@ class FileManaged extends \CActiveRecord implements FileManagedInterface {
 		return $this->_realPath = $path;
 	}
 	
+	public function getUsageCount($usageType = FileAttachable::USAGE_TYPE_DEFAULT) {
+		$criteria = new \CDbCriteria();
+		$criteria->addColumnCondition(array(
+			'fid' => $this->fid,
+			'type' => $usageType,
+		));
+		return FileUsage::model()->count($criteria);
+	}
+	
 	/**
 	 * Load a file from database by fid.
 	 * 
@@ -402,11 +412,13 @@ class FileManaged extends \CActiveRecord implements FileManagedInterface {
 	}
 	
 	public static function fetchAttachedCountOf(FileAttachable $entity, $usageType = FileAttachable::USAGE_TYPE_DEFAULT) {
-		return static::model()->count(array(
+		$criteria = new \CDbCriteria();
+		$criteria->addColumnCondition(array(
 			'entity_id' => $entity->getEntityId(),
 			'entity_type' => $entity->getEntityType(),
 			'type' => $usageType,
 		));
+		return FileUsage::model()->count($criteria);
 	}
 	
 	/**

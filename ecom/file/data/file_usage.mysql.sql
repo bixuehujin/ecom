@@ -6,5 +6,5 @@ CREATE TABLE `file_usage` (
   `entity_id`   int(11)     unsigned NOT NULL DEFAULT 0,
   `type`        tinyint     unsigned NOT NULL DEFAULT 0,
   `count`       int(11)     unsigned NOT NULL DEFAULT 0,
-  PRIMARY KEY (`fid`, `entity_type`, `entity_id`)
+  PRIMARY KEY (`fid`, `entity_type`, `entity_id`, `type`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;

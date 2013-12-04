@@ -6,38 +6,27 @@
  * @since  2012-04-09
  */
 
+use Yii;
+
 /**
  * Action used upload file.
  */
-class FileUploadAction extends CAction {
+class FileUploadAction extends \CAction {
 	
-	public $source = 'file';
 	/**
-	 * The type of uploaded file, file or image, detault to file.
+	 * The form name that holds the uploading file.
 	 * 
 	 * @var string
 	 */
-	public $fileType = 'file';
+	public $name = 'file';
 	/**
-	 * The extensions be allowed to upload.
-	 * 
-	 * @var array|string
-	 */
-	public $allowExtensions;
-	/**
-	 * Properties needs to send to client.
-	 * 
-	 * @var array
-	 */
-	public $properties;
-	/**
-	 * Whether save uploaded file persistent.
+	 * Whether save the uploaded file as persistent.
 	 * 
 	 * @var boolean
 	 */
 	public $savePersistent = false;
 	/**
-	 * Specify where the file should be save to.
+	 * Specify which domain the file belongs to.
 	 * 
 	 * @var string
 	 */
@@ -45,27 +34,22 @@ class FileUploadAction extends CAction {
 	
 	
 	public function run() {
-		if ($this->fileType == 'image') {
-			$fileManaged = Image::model();
+		$uploadedFile = \CUploadedFile::getInstanceByName($this->name);
+		if (!$uploadedFile) {
+			$this->render(array('status' => 1, 'message' => "No file uploaded in name: '{$this->name}'."));
+		}
+		$fileManaged = Yii::app()->fileManager->createManagedObject($this->domain);
+		$newFile = $fileManaged->upload($uploadedFile, $this->savePersistent ? FileManaged::STATUS_PERSISTENT : FileManaged::STATUS_TEMPORARY);
+		if ($newFile) {
+			$this->render(array('status' => 0, 'message' => 'Ok', 'data' => $newFile->getAttributes()));
 		}else {
-			$fileManaged = FileManaged::model();
+			$this->render(array('status' => 2, 'message' => $fileManaged->getUploadError()));
 		}
-		if ($this->allowExtensions) {
-			$fileManaged->setAllowExtensions($this->allowExtensions);
-		}
-		
-		$file = $fileManaged->upload($this->source, $this->domain ?: 'item.avatars', $this->savePersistent ? FileManaged::STATUS_PERSISTENT : FileManaged::STATUS_TEMPORARY);
-		$ajax = new AjaxReturn();
-		if ($file) {
-			if ($this->properties) {
-				$ajax->setData(Utils::fetchProperties($file, $this->properties));
-			}else {
-				$ajax->setData($file->getAttributes());
-			}
-		}else {
-			$ajax->setCode(300)->setMsg($fileManaged->getErrors());
-		}
-		$ajax->send();
 	}
 	
+	protected function render($data) {
+		header('Content-Type: application/json');
+		echo json_encode($data);
+		Yii::app()->end();
+	}
 }
