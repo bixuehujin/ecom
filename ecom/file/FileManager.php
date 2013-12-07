@@ -100,19 +100,30 @@ class FileManager extends \CApplicationComponent {
 	}
 
 	/**
+	 * Checking whether a domain is defined.
+	 * 
+	 * @param string $domain
+	 * @return boolean
+	 */
+	public function hasDomain($domain) {
+		return isset($this->_domains[$domain]);
+	}
+	
+	protected function checkDomain($domain) {
+		if (!isset($this->_domains[$domain])) {
+			throw new \CException("Domain '$domain' is not defined, please define it before using.");
+		}
+	}
+	
+	/**
 	 * Get the path of a domain.
 	 *
 	 * @param string $domain
 	 * @return string
 	 */
 	public function getPathOfDomain($domain) {
-		$path = $this->getBasePath();
-		$domains = $this->getDomains();
-		if (!isset($domains[$domain])) {
-			throw new \CException("Domain '$domain' is not defined, please define it before using.");
-		}
-		$path .= '/' . $domain;
-		return $path;
+		$this->checkDomain($domain);
+		return $this->getBasePath() . '/' . $domain;
 	}
 
 	public function getUrlOfDomain($domain) {
@@ -128,9 +139,8 @@ class FileManager extends \CApplicationComponent {
 	 * @throws \CException
 	 */
 	public function createManagedObject($domain) {
-		if (!isset($this->domains[$domain])) {
-			throw new \CException("The domain '$domain' is not configured properly");
-		}
+		$this->checkDomain($domain);
+		
 		$config      = array();
 		$dominConfig = $this->domains[$domain];
 		

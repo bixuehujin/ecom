@@ -111,7 +111,12 @@ class FileManaged extends \CActiveRecord implements FileManagedInterface {
 		$newFile->hash   = $hash;
 		
 		if ($newFile->save(false)) {
-			if ($uploadedFile->saveAs($newFile->getRealPath())) {
+			$path = $newFile->getRealPath();
+			$dir = dirname($path);
+			if (!file_exists($dir)) {
+				mkdir($dir, 0777, true);
+			}
+			if ($uploadedFile->saveAs($path)) {
 				
 				return $newFile;
 			}else {
@@ -407,8 +412,8 @@ class FileManaged extends \CActiveRecord implements FileManagedInterface {
 	 * @param string $hash
 	 * @return FileManaged
 	 */
-	public static function loadByHash($path) {
-		return static::model()->findByAttributes(array('hash' => $path));
+	public static function loadByHash($hash) {
+		return static::model()->findByAttributes(array('hash' => $hash));
 	}
 	
 	public static function fetchAttachedCountOf(FileAttachable $entity, $usageType = FileAttachable::USAGE_TYPE_DEFAULT) {
