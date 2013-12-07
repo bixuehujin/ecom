@@ -1,0 +1,23 @@
+{
+    "name": "ecom/image",
+    "type": "library",
+    "description": "The image component of ecom",
+    "keywords": ["yii", "component", "extention", "file", "image"],
+    "homepage": "https://github.com/bixuehujin/ecom-files",
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "Jin Hu",
+            "email": "bixuehujin@gmail.com",
+            "homepage": "https://github.com/bixuehujin"
+        }
+    ],
+    "require": {
+    	"php": ">=5.3.0",
+    	"ecom/file": "dev-master",
+    	"masterexploder/phpthumb": "v2.0"
+    },
+    "require-dev": {
+    	"yiisoft/yii": "1.1.*"
+    }
+}
