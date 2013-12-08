@@ -157,6 +157,8 @@ class FileManager extends \CApplicationComponent {
 			$object->$name = $value;
 		}
 		
+		$object->attachBehaviors($object->behaviors());
+		
 		//$object->attachBehaviors()
 		return $object;
 	}

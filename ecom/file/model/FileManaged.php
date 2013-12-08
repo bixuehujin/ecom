@@ -104,6 +104,8 @@ class FileManaged extends \CActiveRecord implements FileManagedInterface {
 		
 		$newFile = clone $this;
 		$newFile->setIsNewRecord(true);
+		$newFile->attachBehaviors($newFile->behaviors());
+		
 		$newFile->name   = $uploadedFile->getName();
 		$newFile->mime   = $uploadedFile->getType();
 		$newFile->size   = $uploadedFile->getSize();
@@ -119,6 +121,7 @@ class FileManaged extends \CActiveRecord implements FileManagedInterface {
 		if ($newFile->save(false)) {
 			$path = $newFile->getRealPath();
 			$dir = dirname($path);
+			
 			if (!file_exists($dir)) {
 				mkdir($dir, 0777, true);
 			}
