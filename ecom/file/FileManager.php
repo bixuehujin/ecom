@@ -160,4 +160,26 @@ class FileManager extends \CApplicationComponent {
 		//$object->attachBehaviors()
 		return $object;
 	}
+	
+	/**
+	 * Load a file from database.
+	 * 
+	 * @param integer $fid
+	 * @return FileManaged
+	 */
+	public function load($fid) {
+		$class = $this->managedClass;
+		return $class::load($fid);
+	}
+	
+	/**
+	 * Load a file by its unique hash value.
+	 *
+	 * @param string $hash
+	 * @return FileManaged
+	 */
+	public function loadByHash($hash) {
+		$class = $this->managedClass;
+		return $class::loadByHash($fid);
+	}
 }

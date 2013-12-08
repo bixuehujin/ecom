@@ -62,7 +62,13 @@ class FileManaged extends \CActiveRecord implements FileManagedInterface {
 	}
 	
 	public function behaviors() {
-		return $this->behaviors;
+		return $this->behaviors + array(
+			'timestampBehavior' => array(
+				'class' => 'zii.behaviors.CTimestampBehavior',
+				'createAttribute' => 'created',
+				'updateAttribute' => null,
+			),
+		);
 	}
 	
 	/**
@@ -105,7 +111,7 @@ class FileManaged extends \CActiveRecord implements FileManagedInterface {
 		$newFile->status = $status;
 		$newFile->domain = $this->domainBelongs;
 		
-		$hash = base64_encode(sha1(sprintf('%s:%s', Yii::app()->user->getId(), time()), true));
+		$hash = base64_encode(sha1(sprintf('%s:%s:%s', Yii::app()->user->getId(), time(), uniqid()), true));
 		$hash = rtrim(strtr($hash, '+/', '-_'), '=');
 		
 		$newFile->hash   = $hash;
@@ -156,15 +162,6 @@ class FileManaged extends \CActiveRecord implements FileManagedInterface {
 			$this->created = time();//TODO fix
 		}
 		return parent::beforeSave();
-	}
-	
-	/**
-	 * Returns whether the file is existed according filename.
-	 * 
-	 * @return boolean
-	 */
-	public function isFileExist() {
-		return (bool)$this->findByAttributes(array('name' => $this->getAttribute('name')));
 	}
 	
 	/**
@@ -249,7 +246,7 @@ class FileManaged extends \CActiveRecord implements FileManagedInterface {
 	 * @param FileAttachable $entity
 	 * @param \CUploadedFile $uploadedFile
 	 * @param integer $usageType
-	 * @return FileManaged|false
+	 * @return FileManaged|false The new file object.
 	 */
 	public function replace(FileAttachable $entity, \CUploadedFile $uploadedFile, $usageType = FileAttachable::USAGE_TYPE_DEFAULT) {
 		$usageCount = $this->getUsageCount($usageType);
@@ -460,5 +457,14 @@ class FileManaged extends \CActiveRecord implements FileManagedInterface {
 			),
 		));
 		return $provider;
+	}
+	
+	/**
+	 * Returns whether the file is existed according hash.
+	 *
+	 * @return boolean
+	 */
+	public static function isFileExist($hash) {
+		return (bool)$this->findByAttributes(array('hash' => $hash));
 	}
 }
