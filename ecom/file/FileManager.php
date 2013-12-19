@@ -184,4 +184,48 @@ class FileManager extends \CApplicationComponent {
 		$class = $this->managedClass;
 		return $class::loadByHash($fid);
 	}
+	
+	/**
+	 * Send a file to user.
+	 * 
+	 * @param integer $id
+	 * @param boolean $terminate Whether terminate the application, defaults to true.
+	 */
+	public function sendFile($fid, $terminate = true) {
+		$file = static::load($fid);
+		if (!$file) {
+			throw new \CHttpException(404, 'File Not Found');
+		}
+		
+		$path = $file->getRealPath();
+		if (!file_exists($path)) {
+			throw new \CHttpException(404, 'File Not Found');
+		}
+
+		Yii::app()->request->sendFile($file->name, file_get_contents($path), $file->mime, $terminate);
+	}
+	
+	/**
+	 * Sends existing file to a browser as a download using x-sendfile.
+	 * 
+	 * @param integer $fid
+	 * @param array $options Extra options applied to Yii::app()->request->xSendFile()
+	 */
+	public function xSendFile($fid, $options = array()) {
+		$file = static::load($fid);
+		if (!$file) {
+			throw new \CHttpException(404, 'File Not Found');
+		}
+		
+		$path = $file->getRealPath();
+		if (!file_exists($path)) {
+			throw new \CHttpException(404, 'File Not Found');
+		}
+		
+		$options += array(
+			'saveName' => $file->name,
+			'mimeType' => $file->mime,
+		);
+		Yii::app()->request->xSendFile($path, $options);
+	}
 }
