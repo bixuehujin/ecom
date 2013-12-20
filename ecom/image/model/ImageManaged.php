@@ -89,7 +89,7 @@ class ImageManaged extends FileManaged implements ImageManagedInterface {
 		$thumb = $this->getThumb();
 		foreach ($options as $option) {
 			$arguments = explode('-', $option);
-			call_user_method_array($this->_map[$arguments[0]], $thumb, array_slice($arguments, 1));
+			call_user_func_array(array($thumb, $this->_map[$arguments[0]]), array_slice($arguments, 1));
 		}
 		
 		if ($save) {
