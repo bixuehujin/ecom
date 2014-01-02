@@ -100,6 +100,18 @@ class FileManager extends \CApplicationComponent {
 	}
 
 	/**
+	 * Get a single domain configuration.
+	 *
+	 * @param string $domain The domain name
+	 * @return array
+	 */
+	public function getDomain($domain) {
+		$this->checkDomain($domain);
+		return $this->_domains[$domain];
+	}
+	
+	
+	/**
 	 * Checking whether a domain is defined.
 	 * 
 	 * @param string $domain
