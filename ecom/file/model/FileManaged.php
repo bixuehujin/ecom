@@ -445,6 +445,13 @@ class FileManaged extends \CActiveRecord implements FileManagedInterface
         return static::model()->findByAttributes(array('hash' => $hash));
     }
 
+    /**
+     * Get the count of all attached files.
+     *
+     * @param FileAttachable $entity
+     * @param integer $usageType
+     * @return integer
+     */
     public static function fetchAttachedCountOf(FileAttachable $entity, $usageType = FileAttachable::USAGE_TYPE_DEFAULT)
     {
         $criteria = new \CDbCriteria();
@@ -458,26 +465,37 @@ class FileManaged extends \CActiveRecord implements FileManagedInterface
     }
 
     /**
+     * Fetch all files attached to spefified entity and its type.
      *
-     * @param  unknown     $entity
+     * @param FileAttachable     $entity
+     * @param integer $type
      * @return FileManaged
      */
-    public static function fetchAllAttachedOf(FileAttachable $entity, $params = array())
+    public static function fetchAllAttachedOf(FileAttachable $entity, $type = FileAttachable::USAGE_TYPE_DEFAULT)
     {
-        $criteria = new \CDbCriteria($params);
+        $criteria = new \CDbCriteria();
         $criteria->alias = 'f';
         $criteria->join  = 'left join file_usage as u on u.fid=f.fid';
         $criteria->addColumnCondition(array(
             'entity_id' => $entity->getEntityId(),
             'entity_type' => $entity->getEntityType(),
+            'type' => $type,
         ));
 
-        return $this->findAll($criteria);
+        return static::model()->findAll($criteria);
     }
 
-    public static function fetchAttachedProviderOf(FileAttachable $entity, $params = array(), $pageSize = 20)
+    /**
+     * Fetch files attached to spefified entity and its type.
+     *
+     * @param FileAttachable $entity
+     * @param integer $type
+     * @param integer $pageSize
+     * @return \CActiveDataProvider
+     */
+    public static function fetchAttachedProviderOf(FileAttachable $entity, $type = FileAttachable::USAGE_TYPE_DEFAULT, $pageSize = 20)
     {
-        $criteria = new \CDbCriteria($params);
+        $criteria = new \CDbCriteria();
 
         $criteria->alias = 'f';
         $criteria->join  = 'left join file_usage as u on u.fid=f.fid';
@@ -485,9 +503,10 @@ class FileManaged extends \CActiveRecord implements FileManagedInterface
         $criteria->addColumnCondition(array(
             'entity_id' => $entity->getEntityId(),
             'entity_type' => $entity->getEntityType(),
+            'type' => $type,
         ));
 
-        $provider = new \CActiveDataProvider($this, array(
+        $provider = new \CActiveDataProvider(get_called_class(), array(
             'criteria' => $criteria,
             'pagination' => array(
                 'pageSize' => $pageSize,
