@@ -74,15 +74,15 @@ class FileManager extends \CApplicationComponent
      * Sets domain configure.
      *
      * @param array $domains
-     *                       array(
-     *                       'domainName' => array(
-     *                       'validateRule' => array( //config for CFileValidator
-     *                       'types' = array(),
-     *                       'mimeTypes' => array(),
-     *                       'minSize' => '',
-     *                       'maxSize' => '',
-     *                       ),
-     *                       'behaviors' => array(
+     *  array(
+     *    'domainName' => array(
+     *      'validateRule' => array( //config for CFileValidator
+     *         'types' = array(),
+     *            'mimeTypes' => array(),
+     *            'minSize' => '',
+     *            'maxSize' => '',
+     *         ),
+     *      'behaviors' => array(
      *
      *     ),
      *   ),
@@ -212,6 +212,60 @@ class FileManager extends \CApplicationComponent
         $class = $this->managedClass;
 
         return $class::loadByHash($fid);
+    }
+
+    /**
+     * Get the count of all attached files of specified entity.
+     *
+     * @param FileAttachable $entity
+     * @param integer $usageType
+     */
+    public function getCountOfAttached(FileAttachable $entity, $usageType = FileAttachable::USAGE_TYPE_DEFAULT)
+    {
+        $class = $this->managedClass;
+
+        return $class::fetchAttachedCountOf($entity, $usageType);
+    }
+
+    /**
+     * Get all files attached to spefified entity and its type.
+     *
+     * @param FileAttachable $entity
+     * @param unknown $type
+     * @return FileManaged[]
+     */
+    public function getAllAttached(FileAttachable $entity, $type = FileAttachable::USAGE_TYPE_DEFAULT)
+    {
+        $class = $this->managedClass;
+
+        return $class::fetchAllAttachedOf($entity, $type);
+    }
+
+    /**
+     * Fetch files attached to spefified entity and its type.
+     *
+     * @param FileAttachable $entity
+     * @param integer $type
+     * @param integer $pageSize
+     * @return \CActiveDataProvider
+     */
+    public function getAllAttachedProvider(FileAttachable $entity, $type = FileAttachable::USAGE_TYPE_DEFAULT, $pageSize = 20)
+    {
+        $class = $this->managedClass;
+
+        return $class::fetchAttachedProviderOf($entity, $type, $pageSize);
+    }
+
+    /**
+     * Returns whether the file is existed according hash.
+     *
+     * @return boolean
+     */
+    public function isFileExist($hash)
+    {
+        $class = $this->managedClass;
+
+        return $class::model()->exist('hash=:hash', array(':hash' => $hash));
     }
 
     /**

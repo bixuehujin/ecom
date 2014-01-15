@@ -469,7 +469,7 @@ class FileManaged extends \CActiveRecord implements FileManagedInterface
      *
      * @param FileAttachable     $entity
      * @param integer $type
-     * @return FileManaged
+     * @return FileManaged[]
      */
     public static function fetchAllAttachedOf(FileAttachable $entity, $type = FileAttachable::USAGE_TYPE_DEFAULT)
     {
