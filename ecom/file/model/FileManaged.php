@@ -126,13 +126,8 @@ class FileManaged extends \CActiveRecord implements FileManagedInterface
         $newFile->hash   = $hash;
 
         if ($newFile->save(false)) {
-            $path = $newFile->getRealPath();
-            $dir = dirname($path);
 
-            if (!file_exists($dir)) {
-                mkdir($dir, 0777, true);
-            }
-            if ($uploadedFile->saveAs($path)) {
+            if ($newFile->saveFile($uploadedFile)) {
                 return $newFile;
             } else {
                 $newFile->delete();
@@ -141,6 +136,28 @@ class FileManaged extends \CActiveRecord implements FileManagedInterface
         $this->addError('uploaded', 'Failed to upload file');
 
         return false;
+    }
+
+    /**
+     * Save file to disk, this method is internal use only.
+     *
+     * @param \CUploadedFile $uploadedFile
+     * @return boolean
+     */
+    protected function saveFile(\CUploadedFile $uploadedFile)
+    {
+        $path = $this->getRealPath();
+        $dir = dirname($path);
+
+        if (!file_exists($dir)) {
+            mkdir($dir, 0777, true);
+        }
+
+        if ($uploadedFile->saveAs($path)) {
+            return true;
+        } else {
+            return false;
+        }
     }
 
     /**
