@@ -293,7 +293,7 @@ class FileManaged extends \CActiveRecord implements FileManagedInterface
             $this->mime = $uploadedFile->getType();
             $this->size = $uploadedFile->getSize();
             $realPath = $this->getRealPath();
-            if ((!file_exists($realPath) || unlink($rea)) && $uploadedFile->saveAs($this->getRealPath(true))) {
+            if ((!file_exists($realPath) || unlink($realPath)) && $uploadedFile->saveAs($this->getRealPath(true))) {
                 if ($this->save(false, array('name', 'mime', 'size'))) {
                     return $this;
                 }
